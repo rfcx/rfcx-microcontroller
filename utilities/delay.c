@@ -14,6 +14,6 @@ int delay_us(unsigned long int microseconds) {
 		OCR2A = 255;
 		TIFR2 = _BV(OCF2A); // Set to clear bit 1
 		while ((TIFR2 & _BV(OCF2A)) == 0); // NULL
-		return(delay_ms(microseconds - 16320));
+		return(delay_us(microseconds - 16320));
 	}
 }
