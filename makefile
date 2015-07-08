@@ -45,7 +45,7 @@ OPT = s
 TARGET = rfcx-mcu
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c utilities/usart.c rfcx-i2c.c
+SRC = $(TARGET).c utilities/usart.c rfcx-i2c.c i2cmaster/twimaster.c
 
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s
@@ -54,7 +54,7 @@ SRC = $(TARGET).c utilities/usart.c rfcx-i2c.c
 # Even though the DOS/Win* filesystem matches both .s and .S the same,
 # it will preserve the spelling of the filenames, and gcc itself does
 # care about how the name is spelled on its command-line.
-ASRC = i2cmaster/i2cmaster.S
+ASRC =
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
@@ -120,7 +120,7 @@ LDFLAGS += -lm
 #
 AVRDUDE_PROGRAMMER = $(RFCX_PROGRAMMER)
 
-AVRDUDE_PORT = usb	   # programmer connected to serial device
+AVRDUDE_PORT = com5	   # programmer connected to serial device
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep

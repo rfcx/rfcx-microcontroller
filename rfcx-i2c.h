@@ -11,7 +11,7 @@ void ATMegaInit(void);
 
 void ADCInit(void);
 
-void TempSensorInit(void);
+int TempSensorInit(void);
 
 float ConvertTempData(char MSB, char LSB);
 
