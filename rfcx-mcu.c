@@ -58,7 +58,9 @@ int main(void) {
 	return 0;
 }
 
-void init(void) {
+int init(void) {
+	int ret = 0;
+
 	//Clear interrupts
 	cli();
 
@@ -66,21 +68,25 @@ void init(void) {
 	peripheral_init();
 
 	//Initialize devices
-	device_init();
+	ret = device_init();
 
 	//Enable interrupts
 	sei();
+
+	return ret;
 }
 
-void peripheral_init(void) {
+int peripheral_init(void) {
 	//Initialize I2C (TWI) peripheral as a whole
 	rfcx_i2c_init();
 
 	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
 	usart_init(UBRR);
+
+	return 0;
 }
 
-void device_init(void) {
+int device_init(void) {
 	int ret = 0;
 
 	//Initialize external I2C ADC (ADS1015)
@@ -98,4 +104,6 @@ void device_init(void) {
 	} else {
 		usart_send_string("Successfully initialized temp sensor\r\n");
 	}
+
+	return ret;
 }
