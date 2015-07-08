@@ -31,7 +31,7 @@
 # MCU name
 MCU = atmega328p
 
-# RFCX Programming Interface
+# RFCX Programming Interface ('arduino' for Arduino debug or 'avrispmkII' for the board)
 RFCX_PROGRAMMER += arduino
 
 # Output format. (can be srec, ihex, binary)
