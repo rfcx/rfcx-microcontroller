@@ -1,9 +1,5 @@
 #RFCx Microcontroller Software
-@gibsjose
-@Jesse-Millwood
-@
-@topherwhite
-
+@gibsjose, @Jesse-Millwood, @gaberex, @topherwhite
 8 July 2015
 
 ##Description
