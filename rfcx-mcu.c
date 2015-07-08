@@ -1,67 +1,101 @@
+/**********************************************************
+*	RFCx Microcontroller Software - Main
+*
+*	Kalee Stutzman 	(stutzmak@mail.gvsu.edu)
+*	Joe Gibson		(gibsjose@mail.gvsu.edu)
+*
+*	08 July 2015
+*
+*   www.rfcx.org
+**********************************************************/
+
+#include "utilities/delay.h"
 #include "rfcx-mcu.h"
-int readFlag = 0;
 
-int delay_ms(unsigned long int microseconds)
-{
-	//	return; // bypass code and return for debug
-	volatile unsigned cycles = microseconds/64;
-	TCCR2A	= 0x00;
-	TCCR2B =_BV(CS22) | _BV(CS21) | _BV(CS20); // set timer to use internal clock with 1:1024 pre-scale
-	if(microseconds < 16321)
-	{
-		TCNT2 = 0;
-		OCR2A = cycles;
-		TIFR2 = _BV(OCF2A); // Set to clear bit 1
-		while ((TIFR2 & _BV(OCF2A)) == 0); // NULL
-		return(0);
-	}
-	else
-	{
-		TCNT2 = 0;
-		OCR2A = 255;
-		TIFR2 = _BV(OCF2A); // Set to clear bit 1
-		while ((TIFR2 & _BV(OCF2A)) == 0); // NULL
-		return(delay_ms(microseconds - 16320));
-	}
-}
+//int readFlag = 0;
 
-
-int main(void)
-{
+int main(void) {
 	double currTemp, currInV, currInC, currOutV, currOutC = 0.0;
 	char message[100];
-	cli();
-	ATMegaInit();
-	USART_Init(MYUBRR);
-	//ADCInit();
-	USART_Send_string("Initializing Temp Sensor\n");
-	int ret = TempSensorInit();
+	int ret = 0;
+
+	//Initialization
+	usart_send_string("Initializing...\r\n");
+	ret = init();
 	if(ret) {
-		USART_Send_string("ERROR Initializing Temp Sensor!\n");
+		usart_send_string("<-- ERROR: Initialization failed -->\r\n");
+	} else {
+		usart_send_string("Initialization successful\r\n");
 	}
-	USART_Send_string("Done Initializing Temp Sensor\n");
+
+	while(1) {
+		//Delay 1 second
+		delay_us(1000000);
+
+		//Make a temperature reading for testing
+		currTemp = rfcx_read_temp();
+		sprintf(message, "Temperature: %f\r\n", currTemp);
+		usart_send_string(message);
+	}
+
+	// while(1) {
+	// 	usart_Send_string("DELAY\r\n");
+	// 	delay_ms(5000000);
+	// 	//if(readFlag)
+	// 	//{
+	// 	//currTemp = ((double)ReadTemp());
+	// 	//currInV = ReadInputVoltage();
+	// 	//currInC = ReadInputCurrent();
+	// 	//currOutV = ReadOutputVoltage();
+	// 	//currOutC = ReadOutputCurrent();
+	// 	//sprintf(message, "Temp: %f\r\nInput V: %f\r\nInput C: %f\r\nOutput V: %f\r\nOutput C: %f\r\n",
+	// 	//       currTemp, currInV, currInC, currOutV, currOutC);
+	// 	sprintf(message, "Temp: %f\r\n", currTemp);
+	// 	usart_Send_string(message);
+	// 	//readFlag = 0;
+	// }
+
+	return 0;
+}
+
+void init(void) {
+	//Clear interrupts
+	cli();
+
+	//Initialize peripherals
+	peripheral_init();
+
+	//Initialize devices
+	device_init();
+
+	//Enable interrupts
 	sei();
+}
 
-	ReadTemp();
+void peripheral_init(void) {
+	//Initialize I2C (TWI) peripheral as a whole
+	rfcx_i2c_init();
 
-	/*while(1)
-	{
-	USART_Send_string("DELAY\n");
-	delay_ms(5000000);
-	//if(readFlag)
-	//{
-	//currTemp = ((double)ReadTemp());
-	//currInV = ReadInputVoltage();
-	//currInC = ReadInputCurrent();
-	//currOutV = ReadOutputVoltage();
-	//currOutC = ReadOutputCurrent();
-	//sprintf(message, "Temp: %f\nInput V: %f\nInput C: %f\nOutput V: %f\nOutput C: %f\n",
-	//       currTemp, currInV, currInC, currOutV, currOutC);
-	sprintf(message, "Temp: %f\n", currTemp);
-	USART_Send_string(message);
-	//readFlag = 0;
-	//}
+	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
+	usart_init(UBRR);
+}
 
-}*/
-return 0;
+void device_init(void) {
+	int ret = 0;
+
+	//Initialize external I2C ADC (ADS1015)
+	ret = rfcx_adc_init();
+	if(ret) {
+		usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
+	} else {
+		usart_send_string("Successfully initialized ADC\r\n");
+	}
+
+	//Initialize external I2C temp sensor (LM75BD)
+	ret = rfcx_temp_init();
+	if(ret) {
+		usart_send_string("<-- ERROR: Error initializing temp sensor -->\r\n");
+	} else {
+		usart_send_string("Successfully initialized temp sensor\r\n");
+	}
 }

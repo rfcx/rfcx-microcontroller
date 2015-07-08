@@ -6,14 +6,14 @@
  * Modified: 09/15/2013 by R. Bossemeyer to usart.c
  * changed one line to placate GCC
  *
- */ 
+ */
 #include "usart.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <stdio.h>			// Conversions
 
-void USART_Init( unsigned int ubrr)
+void usart_init( unsigned int ubrr)
 {
 /*Set baud rate */
 UBRR0H = (unsigned char)(ubrr>>8);
@@ -27,7 +27,7 @@ UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 
 
 
-void USART_Sendbyte( unsigned char data )
+void usart_send_byte( unsigned char data )
 {
 /* Wait for empty transmit buffer */
 while ( !( UCSR0A & (1<<UDRE0)) )
@@ -37,25 +37,25 @@ while ( !( UCSR0A & (1<<UDRE0)) )
 UDR0 = data;
 }
 
-void USART_Send_string(const char *str)
+void usart_send_string(const char *str)
 {
 
-	  while (*str) 
-      USART_Sendbyte(*str++);
-	
+	  while (*str)
+      usart_send_byte(*str++);
+
 }
 
-void USART_Send_int(unsigned int d )
+void usart_send_int(unsigned int d )
 {
 	char str[10];
 	sprintf(str,"%u",d);
-	USART_Send_string(str);
-	
+	usart_send_string(str);
+
 }
 
 
 
-unsigned char USART_Receive( void )
+unsigned char usart_receive( void )
 {
 /* Wait for data to be received */
 while ( !(UCSR0A & (1<<RXC0)) )
