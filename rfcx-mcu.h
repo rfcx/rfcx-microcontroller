@@ -25,4 +25,8 @@
 #define BAUD 9600	  // Baud Rate
 #define UBRR (((((FOSC * 10) / (16L * BAUD)) + 5) / 10) - 1)
 
+void init(void);
+void peripheral_init(void);
+void device_init(void);
+
 #endif//RFCX_MCU_H

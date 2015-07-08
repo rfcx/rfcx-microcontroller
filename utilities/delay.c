@@ -1,3 +1,5 @@
+#include "delay.h"
+
 int delay_us(unsigned long int microseconds) {
 	volatile unsigned cycles = microseconds/64;
 	TCCR2A	= 0x00;
