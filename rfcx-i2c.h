@@ -29,7 +29,7 @@ int rfcx_temp_init(void);
 int rfcx_adc_init(void);
 
 //Shutdown
-void rfcx_i2c_shutdown();
+void rfcx_i2c_shutdown(void);
 void rfcx_temp_shutdown(void);
 void rfcx_adc_shutdown(void);
 

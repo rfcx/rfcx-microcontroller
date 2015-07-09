@@ -12,13 +12,15 @@
 #include "utilities/delay.h"
 #include "rfcx-mcu.h"
 
-//int readFlag = 0;
+int readFlag = 0;
 
 int main(void) {
 	double currTemp, currInV, currInC, currOutV, currOutC = 0.0;
 	char message[100];
 	int ret = 0;
 
+	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
+	usart_init(UBRR);
 	//Initialization
 	usart_send_string("Initializing...\r\n");
 	ret = init();
@@ -26,9 +28,10 @@ int main(void) {
 		usart_send_string("<-- ERROR: Initialization failed -->\r\n");
 	} else {
 		usart_send_string("Initialization successful\r\n");
+		readFlag = 1;
 	}
 
-	while(1) {
+	while(readFlag) {
 		//Delay 1 second
 		delay_us(1000000);
 
@@ -80,9 +83,6 @@ int peripheral_init(void) {
 	//Initialize I2C (TWI) peripheral as a whole
 	rfcx_i2c_init();
 
-	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
-	usart_init(UBRR);
-
 	return 0;
 }
 
@@ -90,12 +90,12 @@ int device_init(void) {
 	int ret = 0;
 
 	//Initialize external I2C ADC (ADS1015)
-	ret = rfcx_adc_init();
+	/*ret = rfcx_adc_init();
 	if(ret) {
 		usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
 	} else {
 		usart_send_string("Successfully initialized ADC\r\n");
-	}
+	}*/
 
 	//Initialize external I2C temp sensor (LM75BD)
 	ret = rfcx_temp_init();
