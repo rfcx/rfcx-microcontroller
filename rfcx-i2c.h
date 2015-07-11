@@ -20,7 +20,7 @@
 #define ERROR   1
 
 //I2C Addresses
-#define TEMP_ADDR   0x48    //01001ABC <- A = B = C = 0 (pulled down in hardware)
+#define TEMP_ADDR   0x92    //1001ABC0 <- A = B = C = 0 (pulled down in hardware)
 #define ADC_ADDR    0x00    //SET ADDR
 
 //Initialization
