@@ -9,7 +9,12 @@
 *   www.rfcx.org
 **********************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
 #include "rfcx-i2c.h"
+#include "utilities/usart.h"
 
 //Initialize I2C peripheral
 void rfcx_i2c_init(void) {
@@ -22,18 +27,43 @@ int rfcx_temp_init() {
     value = 0x01;
     value2 = 0x04;
 
-    int ret = i2c_start(TEMP_ADDR);
+    int ret = 0;
 
+    char str[512];
+    memset(str, 0, 512);
+
+    unsigned char address;
+
+    address = TEMP_ADDR;
+
+    //sprintf(str, "Device address: 0x%02X\r\n", address);
+    //usart_send_string(str);
+
+    //Begin TWI communication
+    ret = i2c_start(address + I2C_WRITE);
     if(ret) {
         i2c_stop();
+        usart_send_string("<-- ERROR: Unable to start communication-->\r\n");
         return ERROR;
     }
 
     //Set the pointer to the configuration register
-    i2c_write(value);
+    ret = i2c_write(value);
+    if(ret) {
+        i2c_stop();
+        usart_send_string("<-- ERROR: Could not set pointer to LM75 config register -->\r\n");
+        return ERROR;
+    }
 
     //Enable the temp sensor
-    i2c_write(value2);
+    ret = i2c_write(value2);
+    if(ret) {
+        i2c_stop();
+        usart_send_string("<-- ERROR: Could not enable LM75 -->\r\n");
+        return ERROR;
+    }
+
+    //Release bus
     i2c_stop();
 
     return OK;
@@ -91,17 +121,36 @@ void rfcx_adc_shutdown() {
 //Read Temperature data from the LM75B
 float rfcx_read_temp() {
     float result;
-    unsigned char response1, response2, address;
+    unsigned char msb, lsb, address;
     address = TEMP_ADDR;
-    i2c_start(address);
+    int ret = 0;
+    //char str[512];
+
     //Write the pointer register in the sensor to point to the temp register
-    i2c_write(0x00);
-    i2c_rep_start(address);
-    //Read both bytes for the temperature
-    response1 = i2c_readAck();
-    response2 = i2c_readNak();
+    i2c_start_wait(address + I2C_WRITE);
+
+    ret = i2c_write(0x00);
+    if(ret) {
+        i2c_stop();
+        usart_send_string("<-- ERROR: Could not set pointer register to temp (0x00)-->\r\n");
+        return 0;
+    }
+
+    //Read both bytes for the temperature (msb first, then lsb)
+    ret = i2c_rep_start(address + I2C_READ);
+    if(ret) {
+        i2c_stop();
+        usart_send_string("<-- ERROR: Could not repeat start temp sensor-->\r\n");
+    }
+
+    msb = i2c_readAck();
+    lsb = i2c_readNak();
     i2c_stop();
-    result = convert_temp_data(response1, response2);
+
+    //sprintf(str, "msb = 0x%02X, lsb = 0x%02X\r\n", msb, lsb);
+    //usart_send_string(str);
+
+    result = convert_temp_data(msb, lsb);
 
     return result;
 }
@@ -225,19 +274,29 @@ float rfcx_read_output_voltage() {
     return result;
 }
 
-float convert_temp_data(char MSB, char LSB) {
-    float result;
-    //Check if the temperature is positive or negative
-    if((MSB & 10000000) == 00000000)
-    {
-        //Convert the positive 12 bit number into the temperature
-        result = (float)(convert_from_binary(MSB) + (convert_from_binary(LSB >> 4) * .125));
-    }
-    else
-    {
-        //Convert the negative 12 bit number into the temperature
-        result = -1 * (float)(convert_from_binary(MSB) + (convert_from_binary(LSB >> 4) * .125));
-    }
+// float convert_temp_data(char MSB, char LSB) {
+//     float result;
+//     //Check if the temperature is positive or negative
+//     if((MSB & 10000000) == 00000000)
+//     {
+//         //Convert the positive 12 bit number into the temperature
+//         result = (float)(convert_from_binary(MSB) + (convert_from_binary(LSB >> 4) * .125));
+//     }
+//     else
+//     {
+//         //Convert the negative 12 bit number into the temperature
+//         result = -1 * (float)(convert_from_binary(MSB) + (convert_from_binary(LSB >> 4) * .125));
+//     }
+//
+//     return result;
+// }
+
+float convert_temp_data(int msb, int lsb) {
+    char str[512];
+    float result = 0.0;
+
+    int tmp = (msb << 8) | lsb;
+    result = (float)tmp / 256.0;
 
     return result;
 }
