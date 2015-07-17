@@ -35,10 +35,11 @@ void rfcx_adc_shutdown(void);
 
 //Read
 float rfcx_read_temp(void);
-float rfcx_read_input_current(void);
+/*float rfcx_read_input_current(void);
 float rfcx_read_output_current(void);
 float rfcx_read_input_voltage(void);
-float rfcx_read_output_voltage(void);
+float rfcx_read_output_voltage(void);*/
+float rfcx_read_adc_pin(int pinNum);
 
 //Static Conversion Helpers
 float convert_temp_data(int MSB, int LSB);

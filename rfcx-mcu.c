@@ -17,10 +17,11 @@ int readFlag = 0;
 int main(void) {
 	double currTemp, currInV, currInC, currOutV, currOutC = 0.0;
 	char message[100];
-	char tmp_str[6];
+	char tmp_str[6], tmp_str2[6];
 	int ret = 0;
 
 	memset(tmp_str, 0, 6);
+	memset(tmp_str2, 0, 6);
 
 	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
 	usart_init(UBRR);
@@ -43,7 +44,10 @@ int main(void) {
 		currTemp = rfcx_read_temp();
 		dtostrf((double)currTemp, 5, 2, tmp_str);
 
-		sprintf(message, "Temperature: %sC\r\n", tmp_str);
+		currInV = rfcx_read_adc_pin(0);
+		dtostrf((double)currTemp, 5, 2, tmp_str2);
+
+		sprintf(message, "Temperature: %sC\r\nInput Voltage: %sC\r\n", tmp_str, tmp_str2);
 		usart_send_string(message);
 	}
 
@@ -96,12 +100,12 @@ int device_init(void) {
 	int ret = 0;
 
 	//Initialize external I2C ADC (ADS1015)
-	// ret = rfcx_adc_init();
-	// if(ret) {
-	// 	usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
-	// } else {
-	// 	usart_send_string("Successfully initialized ADC\r\n");
-	// }
+	 ret = rfcx_adc_init();
+	 if(ret) {
+	 	 usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
+	 } else {
+	 	 usart_send_string("Successfully initialized ADC\r\n");
+	 }
 
 	//Initialize external I2C temp sensor (LM75BD)
 	ret = rfcx_temp_init();
