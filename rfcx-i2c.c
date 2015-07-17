@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+//MEREGE TEST
 
 #include "rfcx-i2c.h"
 #include "utilities/usart.h"
