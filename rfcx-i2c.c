@@ -292,14 +292,32 @@ float rfcx_read_output_voltage() {
 // }
 
 float convert_temp_data(int msb, int lsb) {
-    char str[512];
-    float result = 0.0;
+    int tmp = 0;
+    float result;
 
-    int tmp = (msb << 8) | lsb;
-    result = (float)tmp / 256.0;
+    //Shift 'dem bits around
+    tmp = ((msb << 8) | (lsb & ~0x1F)) >> 5;
+
+    //Check sign of data
+    if((msb & 0x80) == 0x80) {
+        result = (float)(tmp) * 0.125;
+    }
+    else {
+        result = -1.0 * (float)(~tmp + 1) * 0.125;
+    }
 
     return result;
 }
+
+// float convert_temp_data(int msb, int lsb) {
+//     char str[512];
+//     float result = 0.0;
+//
+//     int tmp = (msb << 8) | lsb;
+//     result = (float)tmp / 256.0;
+//
+//     return result;
+// }
 
 //Convert a binary value into a decimal number
 int convert_from_binary(char byte) {
