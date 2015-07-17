@@ -158,6 +158,56 @@ float rfcx_read_temp() {
 //@TODO These can all be confined to a single function that takes
 //      a value from 1-4 and returns the float associated with that
 //      pin, where INPUT_CURRENT is defined as 1, OUTPUT_CURRENT as 2, and so on...
+
+float rfcx_read_adc_pin(int pinNum)
+{
+  unsigned char value, value2, value3;
+  value = 0x01;
+
+  switch(pinNum){
+    case 0: //Pin AIN0
+      value2 = 0xC1;
+      break;
+    case 1: //Pin AIN1
+      value2 = 0xD1;
+      break;
+    case 2: //Pin AIN2
+      value2 = 0xE1;
+      break;
+    case 3: //Pin AIN3
+      value2 = 0xF1;
+      break;
+    default: //Pin AIN0
+      value2 = 0xC1;
+      break;
+  }
+
+  value3 = 0xEF;
+  i2c_start_wait(ADC_ADDR);
+  //Set the pointer to the configuration register
+  i2c_write(value);
+  //Put the ADC in single conversion mode, read from AIN0
+  i2c_write(value2);
+  //Set the data rate to 3300, disable the comparator
+  i2c_write(value3);
+
+  value = 0x00;
+  i2c_rep_start(ADC_ADDR);
+  //Set the pointer to the conversion register
+  i2c_write(value);
+
+
+  unsigned char response, response2;
+  float result;
+  i2c_rep_start(ADC_ADDR);
+  //Read from the conversion register
+  response = i2c_readAck();
+  response2 = i2c_readNak();
+  result = convert_adc_data(response, response2);
+  return result;
+}
+
+/*
 float rfcx_read_input_current() {
     unsigned char value, value2, value3;
     value = 0x01;
@@ -272,7 +322,7 @@ float rfcx_read_output_voltage() {
     response2 = i2c_readNak();
     result = convert_adc_data(response, response2);
     return result;
-}
+}*/
 
 // float convert_temp_data(char MSB, char LSB) {
 //     float result;
