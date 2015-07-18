@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//MERGE TEST
 
 #include "rfcx-i2c.h"
 #include "utilities/usart.h"

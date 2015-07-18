@@ -12,16 +12,29 @@
 #include "utilities/delay.h"
 #include "rfcx-mcu.h"
 
-int readFlag = 0;
+//Don't forget `volatile`!
+volatile bool sensors = false;
+
+//Timer 1 Compare Interrupt Vector (1s CTC Timer)
+ISR(TIMER1_COMPA_vect) {
+	//Blink LED
+	PORTB ^= _BV(LED_PIN);
+
+	//Initiate a sensor reading
+	sensors = true;
+}
 
 int main(void) {
-	double currTemp, currInV, currInC, currOutV, currOutC = 0.0;
+	double temperature = 0.0;
+	// double input_voltage = 0.0;
+	// double output_voltage = 0.0;
+	// double input_current = 0.0;
+	// double output_current = 0.0;
 	char message[100];
-	char tmp_str[6], tmp_str2[6];
+	char tmp_str[6];
 	int ret = 0;
 
 	memset(tmp_str, 0, 6);
-	memset(tmp_str2, 0, 6);
 
 	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
 	usart_init(UBRR);
@@ -33,40 +46,25 @@ int main(void) {
 		usart_send_string("<-- ERROR: Initialization failed -->\r\n");
 	} else {
 		usart_send_string("Initialization successful\r\n");
-		readFlag = 1;
 	}
 
-	while(readFlag) {
-		//Delay 1 second
-		delay_us(1000000);
+	//Main Loop
+	while(true) {
+		//Sensor Loop
+		if(sensors) {
+			//Make a temperature reading for testing
+			temperature = rfcx_read_temp();
+			dtostrf((double)temperature, 5, 2, tmp_str);
 
-		//Make a temperature reading for testing
-		currTemp = rfcx_read_temp();
-		dtostrf((double)currTemp, 5, 2, tmp_str);
+			sprintf(message, "Temperature: %sC\r\n", tmp_str);
+			usart_send_string(message);
 
-		currInV = rfcx_read_adc_pin(0);
-		dtostrf((double)currTemp, 5, 2, tmp_str2);
+			// input_voltage = rfcx_read_adc_pin(0);
+			// dtostrf((double)input_voltage, 5, 2, tmp_str);
 
-		sprintf(message, "Temperature: %sC\r\nInput Voltage: %sC\r\n", tmp_str, tmp_str2);
-		usart_send_string(message);
+			sensors = false;
+		}
 	}
-
-	// while(1) {
-	// 	usart_Send_string("DELAY\r\n");
-	// 	delay_ms(5000000);
-	// 	//if(readFlag)
-	// 	//{
-	// 	//currTemp = ((double)ReadTemp());
-	// 	//currInV = ReadInputVoltage();
-	// 	//currInC = ReadInputCurrent();
-	// 	//currOutV = ReadOutputVoltage();
-	// 	//currOutC = ReadOutputCurrent();
-	// 	//sprintf(message, "Temp: %f\r\nInput V: %f\r\nInput C: %f\r\nOutput V: %f\r\nOutput C: %f\r\n",
-	// 	//       currTemp, currInV, currInC, currOutV, currOutC);
-	// 	sprintf(message, "Temp: %f\r\n", currTemp);
-	// 	usart_Send_string(message);
-	// 	//readFlag = 0;
-	// }
 
 	return 0;
 }
@@ -76,6 +74,9 @@ int init(void) {
 
 	//Clear interrupts
 	cli();
+
+	//Initialize ports
+	port_init();
 
 	//Initialize peripherals
 	peripheral_init();
@@ -89,7 +90,38 @@ int init(void) {
 	return ret;
 }
 
+int port_init(void) {
+	//Initialize LED as output
+	DDRB |= _BV(LED_DD);
+
+	return 0;
+}
+
+int timer1_init(void) {
+	//Initialize Timer 1
+	TCCR1A = 0;
+	TCCR1B = 0;
+
+	//Set CTC compare value (1 second)
+	OCR1A = TIMER1_COUNT;
+
+	//Enable CTC mode
+	TCCR1B |= (1 << WGM12);
+
+	//Enable 1024 prescaler
+	TCCR1B |= (1 << CS10);
+	TCCR1B |= (1 << CS12);
+
+	//Enable Timer 1 output compare interrupt
+	TIMSK1 |= (1 << OCIE1A);
+
+	return 0;
+}
+
 int peripheral_init(void) {
+	//Initialize Timer 1
+	timer1_init();
+
 	//Initialize I2C (TWI) peripheral as a whole
 	rfcx_i2c_init();
 
@@ -100,12 +132,12 @@ int device_init(void) {
 	int ret = 0;
 
 	//Initialize external I2C ADC (ADS1015)
-	 ret = rfcx_adc_init();
-	 if(ret) {
-	 	 usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
-	 } else {
-	 	 usart_send_string("Successfully initialized ADC\r\n");
-	 }
+	// ret = rfcx_adc_init();
+	// if(ret) {
+	// 	 usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
+	// } else {
+	// 	 usart_send_string("Successfully initialized ADC\r\n");
+	// }
 
 	//Initialize external I2C temp sensor (LM75BD)
 	ret = rfcx_temp_init();

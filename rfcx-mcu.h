@@ -14,8 +14,10 @@
 
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "rfcx-i2c.h"
 #include "utilities/usart.h"
@@ -25,7 +27,17 @@
 #define BAUD 9600	  // Baud Rate
 #define UBRR (((((FOSC * 10) / (16L * BAUD)) + 5) / 10) - 1)
 
+//Timer Definitions
+#define OSC_RES         (1 / FOSC)              //Internal oscillator resolution: 1 / 8MHz
+#define TIMER1_COUNT    ((FOSC / 1024) - 1)     //Timer 1 count value for CTC mode: 1 second, at 1024 prescaler
+
+//Pin Definitions
+#define LED_PIN     PB5     //PB2 is the board LED, PB5 is the Arduino LED
+#define LED_DD      DDB5
+
 int init(void);
+int port_init(void);
+int timer1_init(void);
 int peripheral_init(void);
 int device_init(void);
 
