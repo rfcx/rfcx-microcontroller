@@ -20,7 +20,7 @@
 #define ERROR   1
 
 //I2C Addresses
-#define TEMP_ADDR   0x48    //01001ABC <- A = B = C = 0 (pulled down in hardware)
+#define TEMP_ADDR   0x90    //1001CBA0, A = B = C = 0 (pulled up/down in hardware)
 #define ADC_ADDR    0x00    //SET ADDR
 
 //Initialization
@@ -35,13 +35,14 @@ void rfcx_adc_shutdown(void);
 
 //Read
 float rfcx_read_temp(void);
-float rfcx_read_input_current(void);
+/*float rfcx_read_input_current(void);
 float rfcx_read_output_current(void);
 float rfcx_read_input_voltage(void);
-float rfcx_read_output_voltage(void);
+float rfcx_read_output_voltage(void);*/
+float rfcx_read_adc_pin(int pinNum);
 
 //Static Conversion Helpers
-float convert_temp_data(char MSB, char LSB);
+float convert_temp_data(int MSB, int LSB);
 int convert_from_binary(char byte);
 float convert_adc_data(char MSB, char LSB);
 

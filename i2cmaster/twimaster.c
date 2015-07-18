@@ -11,6 +11,7 @@
 
 #include <i2cmaster.h>
 
+#include "../utilities/usart.h"
 
 /* define CPU frequency in Mhz here if not defined in Makefile */
 #ifndef F_CPU
@@ -19,7 +20,6 @@
 
 /* I2C clock in Hz */
 #define SCL_CLOCK  100000L
-
 
 /*************************************************************************
  Initialization of the I2C bus interface. Need to be called only once
