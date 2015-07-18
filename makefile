@@ -34,6 +34,9 @@ MCU = atmega328p
 # RFCX Programming Interface ('arduino' for Arduino debug or 'avrispmkII' for the board)
 RFCX_PROGRAMMER += arduino
 
+# RFCX Serial port (ex: usb, com5, ttyACM0)
+RFCX_PORT ?= com5
+
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
@@ -120,7 +123,7 @@ LDFLAGS += -lm
 #
 AVRDUDE_PROGRAMMER = $(RFCX_PROGRAMMER)
 
-AVRDUDE_PORT = com5	   # programmer connected to serial device
+AVRDUDE_PORT = $(RFCX_PORT)	   # programmer connected to serial device
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
