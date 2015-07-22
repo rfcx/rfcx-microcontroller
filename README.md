@@ -171,17 +171,21 @@ Proceed through the following steps to configure the chips:
 1. Configure the USB Descriptor:
     1. Change from `Bus Powered` to `Self Powered`
     2. Change `Max Bus Power` to `0 mAmps`
+    
     ![1](./ftdi/1_usb_config_descriptor.PNG)
 2. Configure the CBUS Signals (under `Hardware Specific`)
     1. `C0 -> GPIO`
     2. `C1 -> RXLED#`
     3. `C2 -> TXLED#`
     4. `C3 -> VBUS_Sense`
+
     ![2](./ftdi/2_cbus_signals.PNG)
 3. Configure the USB String Descriptors
     1. Product Description: `RFCx Main Board`
+
     ![3](./ftdi/3_usb_string_descriptor.PNG)
 4. Program the Chip
     1. `Devices` > `Program` (Lightning bolt icon)
     2. `Program`
+
     ![4](./ftdi/4_program.PNG)
