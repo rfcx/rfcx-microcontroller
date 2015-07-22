@@ -23,12 +23,11 @@
 #include "utilities/usart.h"
 
 //USART Settings
-#define FOSC 16000000 // Clock Speed (Hz)
+#define FOSC 8000000 // Clock Speed (Hz)
 #define BAUD 9600	  // Baud Rate
 #define UBRR (((((FOSC * 10) / (16L * BAUD)) + 5) / 10) - 1)
 
 //Timer Definitions
-#define OSC_RES         (1 / FOSC)              //Internal oscillator resolution: 1 / 8MHz
 #define TIMER1_COUNT    ((FOSC / 1024) - 1)     //Timer 1 count value for CTC mode: 1 second, at 1024 prescaler
 
 //Pin Definitions
