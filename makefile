@@ -32,10 +32,10 @@
 MCU = atmega328p
 
 # RFCX Programming Interface ('arduino' for Arduino debug or 'avrispmkII' for the board)
-RFCX_PROGRAMMER += arduino
+RFCX_PROGRAMMER ?= avrispmkII
 
 # RFCX Serial port (ex: usb, com5, ttyACM0)
-RFCX_PORT ?= com5
+RFCX_PORT ?= usb
 
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
@@ -259,15 +259,23 @@ extcoff: $(TARGET).elf
 	@echo $(MSG_EXTENDED_COFF) $(TARGET).cof
 	$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
 
+# (Semi-Optional) Setup the device: Default fuses are (H:07, E:D9, L:62)
+# This command only changes the low fuse to remove the default divide-by-eight clock
+# divider. This allow us to run at 8MHz instead of 1MHz, if needed.
+#
+# This is semi-optional because we don't *really* need to run at 8MHz. During testing
+# we have been using 8MHz, but there is no reason we couldn't run at 1MHz or lower.
+# If you decide not to run `make setup`, which will then use the 1MHz clock, remember
+# to modify the `FOSC` macro and the math for the timers accordingly.
+setup_8MHz:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:0xe2:m
 
-
+setup_1MHz:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:0x62:m
 
 # Program the device.
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
-
-
-
 
 # Create final output files (.hex, .eep) from ELF output file.
 %.hex: %.elf
