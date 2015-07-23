@@ -14,7 +14,6 @@
 #include <math.h>
 
 #include "rfcx-i2c.h"
-#include "utilities/usart.h"
 
 //Initialize I2C peripheral
 void rfcx_i2c_init(void) {
@@ -129,7 +128,6 @@ void rfcx_humid_shutdown(void) {
 
 //Read Temperature data from the LM75B
 int rfcx_read_temp(temp_data_t * data) {
-    float result;
     int ret = 0;
 
     //Write the pointer register in the sensor to point to the temp register
@@ -228,12 +226,17 @@ float rfcx_read_adc_pin(int pin) {
 }
 
 int rfcx_read_humid(humid_data_t * data) {
-    float result = 0.0;
     int ret= 0;
 
     //Issue a 'Measurement Request' command
     i2c_start_wait(HUMID_ADDR + I2C_WRITE);
     i2c_stop();
+
+    //Delay ~37ms (datasheet specifies 36.65ms)
+    // NOTE:    This could be avoided if necessary, and we
+    //          will just always get the data from the
+    //          previous conversion.
+    delay_us(HUMID_CONV_TIME);
 
     //Fetch humidity + temp data
     ret = i2c_rep_start(HUMID_ADDR + I2C_READ);
@@ -281,6 +284,7 @@ void convert_temp_data(temp_data_t * data) {
 }
 
 //Convert a binary value into a decimal number
+//@TODO This function doesn't make sense... this is no different than just typecasting a char to an int: `... = (int)byte;` What is this function for?
 int convert_from_binary(char byte) {
     int sum = 0;
     sum += ((int)(byte & 00000001));
@@ -316,7 +320,7 @@ void convert_humid_data(humid_data_t * data) {
     tmp_temp = ((temp_msb << 8) | (temp_lsb & ~0x03)) >> 2;
 
     data->humidity = ((float)tmp_humid / HUMID_COUNTS) * 100.0;
-    data->temperature = (((float)tmp_temp / TEMP_COUNTS) * 165.0) - 40.0;
+    data->temperature = ((float)tmp_temp / TEMP_COUNTS) * 125.0;
 
     return;
 }

@@ -13,7 +13,12 @@
 #define RFCX_I2C_H
 
 #include <avr/io.h>
+#include <string.h>
 #include "i2cmaster/i2cmaster.h"
+
+#include "rfcx-globals.h"
+#include "utilities/delay.h"
+#include "utilities/usart.h"
 
 //Simple Error Representation
 #define OK      0
@@ -39,6 +44,7 @@
 //Humidity Sensor Conversion
 #define HUMID_COUNTS            0x3FFF  //2^14 - 1 = 16383
 #define TEMP_COUNTS             0x3FFF
+#define HUMID_CONV_TIME         0x9088  //37000us -> 37ms (HIH6130 datasheet specifies 36.65ms conversion time)
 
 //Data structure for LM75BD temp sensor
 typedef struct temp_raw_t {
