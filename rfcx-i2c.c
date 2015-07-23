@@ -158,11 +158,6 @@ int rfcx_read_temp(temp_data_t * data) {
 }
 
 int rfcx_read_adc(adc_data_t * data) {
-    float input_voltage = 0.0;
-    float output_voltage = 0.0;
-    float input_current = 0.0;
-    float output_current = 0.0;
-
     //Perform all reads
     rfcx_read_adc_pin(data, ADC_INPUT_VOLTAGE_PIN);
     rfcx_read_adc_pin(data, ADC_OUTPUT_VOLTAGE_PIN);
@@ -320,8 +315,16 @@ float convert_adc_data_pin(adc_data_t * data, int pin) {
     int tmp = 0;
     int msb = 0; //Set to correct msb
     int lsb = 0; //Set to correct lsb
+    float voltage = 0.0;
 
     tmp = ((msb << 8) | lsb) >> 4;
+
+    voltage = ((float)tmp / (0x01 << 12)) * 3.3;
+
+    //Rerturn voltage
+    return voltage;
+
+    //@TODO RETURN VOLTAGE IF VOLTAGE, ELSE CONVERT TO CURRENT VIA ANOTHER FUNCTION
 }
 
 void convert_humid_data(humid_data_t * data) {

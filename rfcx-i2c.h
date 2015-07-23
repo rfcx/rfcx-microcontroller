@@ -106,13 +106,14 @@ void rfcx_humid_shutdown(void);
 
 //Read
 int rfcx_read_temp(temp_data_t *);
-float rfcx_read_adc_pin(int pin);
+int rfcx_read_adc_pin(adc_data_t *, int);
 int rfcx_read_adc(adc_data_t *);
 int rfcx_read_humid(humid_data_t *);
 
 //Static Conversion Helpers
 void convert_temp_data(temp_data_t *);
-void convert_adc_data(adc_data_t * data);
+void convert_adc_data(adc_data_t *);
+float convert_adc_data_pin(adc_data_t *, int);
 void convert_humid_data(humid_data_t *);
 
 #endif//RFCX_I2C_H
