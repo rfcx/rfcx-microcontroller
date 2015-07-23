@@ -12,6 +12,8 @@
 #ifndef RFCX_MCU_H
 #define RFCX_MCU_H
 
+#include "rfcx-globals.h"   //Global definitions
+
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -20,11 +22,12 @@
 #include <stdbool.h>
 
 #include "rfcx-i2c.h"
+#include "utilities/delay.h"
 #include "utilities/usart.h"
 
 //USART Settings
-#define FOSC 8000000        // Clock Speed (Hz)
-#define BAUD 9600           // Baud Rate
+#define FOSC F_CPU          //Clock Speed (Hz)
+#define BAUD 9600           //Baud Rate
 #define UBRR (((((FOSC * 10) / (16L * BAUD)) + 5) / 10) - 1)
 
 //Timer Definitions

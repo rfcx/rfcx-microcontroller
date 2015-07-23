@@ -9,7 +9,6 @@
 *   www.rfcx.org
 **********************************************************/
 
-#include "utilities/delay.h"
 #include "rfcx-mcu.h"
 
 //Don't forget `volatile`!
@@ -26,7 +25,7 @@ ISR(TIMER1_COMPA_vect) {
 
 int main(void) {
 	temp_data_t 	lm75;
-	adc_data_t 		ads1015;
+	// adc_data_t 		ads1015;
 	humid_data_t 	hih6130;
 
 	char message[128];
