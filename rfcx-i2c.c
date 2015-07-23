@@ -163,66 +163,90 @@ int rfcx_read_adc(adc_data_t * data) {
     float input_current = 0.0;
     float output_current = 0.0;
 
-    //Perform all conversions
-    input_voltage = rfcx_read_adc_pin(ADC_INPUT_VOLTAGE_PIN);
-    output_voltage = rfcx_read_adc_pin(ADC_OUTPUT_VOLTAGE_PIN);
-    input_current = rfcx_read_adc_pin(ADC_INPUT_CURRENT_PIN);
-    output_current = rfcx_read_adc_pin(ADC_OUTPUT_CURRENT_PIN);
+    //Perform all reads
+    rfcx_read_adc_pin(data, ADC_INPUT_VOLTAGE_PIN);
+    rfcx_read_adc_pin(data, ADC_OUTPUT_VOLTAGE_PIN);
+    rfcx_read_adc_pin(data, ADC_INPUT_CURRENT_PIN);
+    rfcx_read_adc_pin(data, ADC_OUTPUT_CURRENT_PIN);
 
-    //Store in structure
-    data->input_voltage = input_voltage;
-    data->output_voltage = output_voltage;
-    data->input_current = input_current;
-    data->output_current = output_current;
+    //Convert data
+    convert_adc_data(data);
 
     return OK;
 }
 
-float rfcx_read_adc_pin(int pin) {
+int rfcx_read_adc_pin(adc_data_t * data, int pin) {
     unsigned char value, value2, value3;
     value = 0x01;
 
     switch(pin) {
         case ADC_INPUT_VOLTAGE_PIN:     //Pin AIN0 - Input voltage
-        value2 = 0xC1;
-        break;
+            value2 = 0xC1;
+            break;
         case ADC_OUTPUT_VOLTAGE_PIN:    //Pin AIN1 - Output voltage
-        value2 = 0xD1;
-        break;
+            value2 = 0xD1;
+            break;
         case ADC_INPUT_CURRENT_PIN:     //Pin AIN2 - Input current
-        value2 = 0xE1;
-        break;
+            value2 = 0xE1;
+            break;
         case ADC_OUTPUT_CURRENT_PIN:    //Pin AIN3 - Output current
-        value2 = 0xF1;
-        break;
+            value2 = 0xF1;
+            break;
         default:                        //Pin AIN0 - Input voltage
-        value2 = 0xC1;
-        break;
+            value2 = 0xC1;
+            break;
     }
 
     value3 = 0xEF;
-    i2c_start_wait(ADC_ADDR);
+    i2c_start_wait(ADC_ADDR + I2C_WRITE);
+
     //Set the pointer to the configuration register
     i2c_write(value);
+
     //Put the ADC in single conversion mode, read from AIN0
     i2c_write(value2);
+
     //Set the data rate to 3300, disable the comparator
     i2c_write(value3);
 
     value = 0x00;
-    i2c_rep_start(ADC_ADDR);
+    i2c_rep_start(ADC_ADDR + I2C_WRITE);
     //Set the pointer to the conversion register
     i2c_write(value);
+    i2c_stop();
 
+    unsigned char msb, lsb;
 
-    unsigned char response, response2;
-    float result;
-    i2c_rep_start(ADC_ADDR);
     //Read from the conversion register
-    response = i2c_readAck();
-    response2 = i2c_readNak();
-    result = convert_adc_data(response, response2);
-    return result;
+    i2c_rep_start(ADC_ADDR + I2C_READ);
+    msb = i2c_readAck();
+    lsb = i2c_readNak();
+
+    //Store correctly based on pin
+    switch(pin) {
+        case ADC_INPUT_VOLTAGE_PIN:
+            data->raw.input_voltage_msb = msb;
+            data->raw.input_voltage_lsb = lsb;
+            break;
+        case ADC_OUTPUT_VOLTAGE_PIN:
+            data->raw.output_voltage_msb = msb;
+            data->raw.output_voltage_lsb = lsb;
+            break;
+        case ADC_INPUT_CURRENT_PIN:
+            data->raw.input_current_msb = msb;
+            data->raw.input_current_lsb = lsb;
+            break;
+        case ADC_OUTPUT_CURRENT_PIN:
+            data->raw.output_current_msb = msb;
+            data->raw.output_current_lsb = lsb;
+            break;
+        default:
+            data->raw.input_voltage_msb = msb;
+            data->raw.input_voltage_lsb = lsb;
+            break;
+    }
+
+    return OK;
 }
 
 int rfcx_read_humid(humid_data_t * data) {
@@ -283,44 +307,52 @@ void convert_temp_data(temp_data_t * data) {
     data->temperature = result;
 }
 
-//Convert a binary value into a decimal number
-//@TODO This function doesn't make sense... this is no different than just typecasting a char to an int: `... = (int)byte;` What is this function for?
-int convert_from_binary(char byte) {
-    int sum = 0;
-    sum += ((int)(byte & 00000001));
-    sum += ((int)(byte & 00000010)*2);
-    sum += ((int)(byte & 00000100)*4);
-    sum += ((int)(byte & 00001000)*8);
-    sum += ((int)(byte & 00010000)*16);
-    sum += ((int)(byte & 00100000)*32);
-    sum += ((int)(byte & 01000000)*64);
-    return sum;
+void convert_adc_data(adc_data_t * data) {
+    data->input_voltage = convert_adc_data_pin(data, ADC_INPUT_VOLTAGE_PIN);
+    //...
 }
 
-float convert_adc_data(char MSB, char LSB) {
-    float result;
-    //Just change the 12 bit number into a float, may change after testing
-    result = (float)(convert_from_binary(MSB) + (convert_from_binary(LSB >> 4)));
+float convert_adc_data_pin(adc_data_t * data, int pin) {
+    //Perform conversion for individual pin
+    //Should be able to use pin nubmer as offset into the raw struct to make this easier
 
-    return result;
+    //2-byte conversion register
+    int tmp = 0;
+    int msb = 0; //Set to correct msb
+    int lsb = 0; //Set to correct lsb
+
+    tmp = ((msb << 8) | lsb) >> 4;
 }
-
 
 void convert_humid_data(humid_data_t * data) {
     uint16_t tmp_humid = 0;
     uint16_t tmp_temp = 0;
 
-    int humid_msb = (int)data->raw.humid_msb;
-    int humid_lsb = (int)data->raw.humid_lsb;
-    int temp_msb = (int)data->raw.temp_msb;
-    int temp_lsb = (int)data->raw.temp_lsb;
+    uint16_t humid_msb = (uint16_t)data->raw.humid_msb;
+    uint16_t humid_lsb = (uint16_t)data->raw.humid_lsb;
+    uint16_t temp_msb = (uint16_t)data->raw.temp_msb;
+    uint16_t temp_lsb = (uint16_t)data->raw.temp_lsb;
 
     //Bit shifting
     tmp_humid = ((humid_msb & ~0xC0) << 8) | humid_lsb;
     tmp_temp = ((temp_msb << 8) | (temp_lsb & ~0x03)) >> 2;
 
     data->humidity = ((float)tmp_humid / HUMID_COUNTS) * 100.0;
-    data->temperature = ((float)tmp_temp / TEMP_COUNTS) * 125.0;
+    data->temperature = (((float)tmp_temp / TEMP_COUNTS) * 165.0) - 40.0;
 
     return;
 }
+
+//Convert a binary value into a decimal number
+//@TODO This function doesn't make sense... this is no different than just typecasting a char to an int: `... = (int)byte;` What is this function for?
+// int convert_from_binary(char byte) {
+//     int sum = 0;
+//     sum += ((int)(byte & 00000001));
+//     sum += ((int)(byte & 00000010)*2);
+//     sum += ((int)(byte & 00000100)*4);
+//     sum += ((int)(byte & 00001000)*8);
+//     sum += ((int)(byte & 00010000)*16);
+//     sum += ((int)(byte & 00100000)*32);
+//     sum += ((int)(byte & 01000000)*64);
+//     return sum;
+// }

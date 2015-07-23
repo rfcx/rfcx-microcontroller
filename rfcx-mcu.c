@@ -72,6 +72,12 @@ int main(void) {
 			sprintf(message, "\tTemperature: %sC\r\n", tmp_str);
 			usart_send_string(message);
 
+			// sprintf(message, "\tRaw:\t msb: 0x%02X\r\n"
+			// 						"\t\t lsb: 0x%02X\r\n",
+			// 						hih6130.raw.temp_msb,
+			// 						hih6130.raw.temp_lsb);
+			// usart_send_string(message);
+
 			switch(hih6130.status) {
 				case HUMID_STATUS_NORMAL:
 					sprintf(status, "Normal");

@@ -58,7 +58,19 @@ typedef struct temp_data_t {
 }temp_data_t;
 
 //Data structure for ADS1015 external ADC
+typedef struct adc_raw_t {
+    unsigned char input_voltage_msb;
+    unsigned char input_voltage_lsb;
+    unsigned char output_voltage_msb;
+    unsigned char output_voltage_lsb;
+    unsigned char input_current_msb;
+    unsigned char input_current_lsb;
+    unsigned char output_current_msb;
+    unsigned char output_current_lsb;
+}adc_raw_t;
+
 typedef struct adc_data_t {
+    adc_raw_t raw;          //Raw bytes
     float input_voltage;    //Input voltage
     float output_voltage;   //Output voltage
     float input_current;    //Input current
@@ -100,8 +112,7 @@ int rfcx_read_humid(humid_data_t *);
 
 //Static Conversion Helpers
 void convert_temp_data(temp_data_t *);
-int convert_from_binary(char byte);
-float convert_adc_data(char MSB, char LSB);
+void convert_adc_data(adc_data_t * data);
 void convert_humid_data(humid_data_t *);
 
 #endif//RFCX_I2C_H
