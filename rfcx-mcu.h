@@ -22,6 +22,7 @@
 #include <stdbool.h>
 
 #include "rfcx-i2c.h"
+#include "rfcx-battery.h"
 #include "utilities/delay.h"
 #include "utilities/usart.h"
 
@@ -42,5 +43,8 @@ int port_init(void);
 int timer1_init(void);
 int peripheral_init(void);
 int device_init(void);
+
+//Helper functions
+void battery_status_string(char *, unsigned char);
 
 #endif//RFCX_MCU_H

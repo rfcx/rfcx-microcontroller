@@ -48,7 +48,7 @@ OPT = s
 TARGET = rfcx-mcu
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c rfcx-i2c.c utilities/usart.c utilities/delay.c i2cmaster/twimaster.c
+SRC = $(TARGET).c rfcx-i2c.c rfcx-battery.c utilities/usart.c utilities/delay.c i2cmaster/twimaster.c
 
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s

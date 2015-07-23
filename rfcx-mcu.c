@@ -24,12 +24,16 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 int main(void) {
-	temp_data_t 	lm75;
-	// adc_data_t 		ads1015;
-	humid_data_t 	hih6130;
+	//Sensor/battery structures
+	batteries_t batteries;
+	temp_data_t lm75;
+	// adc_data_t ads1015;
+	humid_data_t hih6130;
 
 	char message[128];
-	char status[128];
+	char humid_status[128];
+	char battery_1_status[128];
+	char battery_2_status[128];
 	char tmp_str[6];
 	int ret = 0;
 
@@ -57,7 +61,7 @@ int main(void) {
 
 			usart_send_string("LM75BD:\r\n");
 			dtostrf((double)lm75.temperature, 5, 2, tmp_str);
-			sprintf(message, "\tTemperature: %sC\r\n\r\n", tmp_str);
+			sprintf(message, "\tTemperature: %sC\r\n", tmp_str);
 			usart_send_string(message);
 
 			//Humidity Sensor
@@ -80,23 +84,23 @@ int main(void) {
 
 			switch(hih6130.status) {
 				case HUMID_STATUS_NORMAL:
-					sprintf(status, "Normal");
+					sprintf(humid_status, "Normal");
 					break;
 				case HUMID_STATUS_STALE:
-					sprintf(status, "STALE DATA");
+					sprintf(humid_status, "STALE DATA");
 					break;
 				case HUMID_STATUS_COMMAND:
-					sprintf(status, "Command Mode");
+					sprintf(humid_status, "Command Mode");
 					break;
 				case HUMID_STATUS_DIAG:
-					sprintf(status, "Diagnostic Condition");
+					sprintf(humid_status, "Diagnostic Condition");
 					break;
 				default:
-					sprintf(status, "UNKNOWN");
+					sprintf(humid_status, "UNKNOWN");
 					break;
 			}
 
-			sprintf(message, "\tStatus: %s\r\n", status);
+			sprintf(message, "\tStatus: %s\r\n", humid_status);
 			usart_send_string(message);
 
 			//Voltage/Current ADC
@@ -118,6 +122,18 @@ int main(void) {
 			// sprintf(message, "Output Current: %smA\r\n", tmp_str);
 			// usart_send_string(message);
 
+			//Battery Status
+			usart_send_string("Batteries:\r\n");
+
+			battery_status_string(battery_1_status, batteries.battery_1.status);
+			battery_status_string(battery_2_status, batteries.battery_2.status);
+
+			sprintf(message, 	"\tBattery 1 Status: %s\r\n"
+								"\tBattery 2 Status: %s\r\n",
+								battery_1_status,
+								battery_2_status);
+			usart_send_string(message);
+
 			usart_send_string("-----------------------------\r\n");
 
 			sensors = false;
@@ -125,6 +141,27 @@ int main(void) {
 	}
 
 	return 0;
+}
+
+void battery_status_string(char * str, unsigned char status) {
+	switch(status) {
+		case CHARGING:
+			sprintf(str, "Charging");
+			break;
+		case CHARGE_COMPLETE:
+			sprintf(str, "Charge Complete");
+			break;
+		case SLEEP_MODE:
+			sprintf(str, "Sleep Mode");
+			break;
+		//@TODO How to identify between Sleep Mode and Temp Fault?
+		// case TEMPERATURE_FAULT:
+		// 	sprintf(str, "Temperature Fault");
+		// 	break;
+		default:
+			sprintf(str, "UNKNOWN");
+			break;
+	}
 }
 
 int init(void) {
@@ -151,6 +188,9 @@ int init(void) {
 int port_init(void) {
 	//Initialize LED as output
 	DDRB |= _BV(LED_DD);
+
+	//Initialize battery inputs/outputs
+	rfcx_batteries_init();
 
 	return 0;
 }
