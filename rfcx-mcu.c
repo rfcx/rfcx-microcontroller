@@ -25,12 +25,12 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 int main(void) {
-	double temperature = 0.0;
-	// double input_voltage = 0.0;
-	// double output_voltage = 0.0;
-	// double input_current = 0.0;
-	// double output_current = 0.0;
-	char message[100];
+	temp_data_t 	lm75;
+	adc_data_t 		ads1015;
+	humid_data_t 	hih6130;
+
+	char message[128];
+	char status[128];
 	char tmp_str[6];
 	int ret = 0;
 
@@ -52,15 +52,68 @@ int main(void) {
 	while(true) {
 		//Sensor Loop
 		if(sensors) {
-			//Make a temperature reading for testing
-			temperature = rfcx_read_temp();
-			dtostrf((double)temperature, 5, 2, tmp_str);
+			usart_send_string("\r\n-----------------------------\r\n");
+			//Temperature Sensor
+			rfcx_read_temp(&lm75);
 
-			sprintf(message, "Temperature: %sC\r\n", tmp_str);
+			usart_send_string("LM75BD:\r\n");
+			dtostrf((double)lm75.temperature, 5, 2, tmp_str);
+			sprintf(message, "\tTemperature: %sC\r\n\r\n", tmp_str);
 			usart_send_string(message);
 
-			// input_voltage = rfcx_read_adc_pin(0);
-			// dtostrf((double)input_voltage, 5, 2, tmp_str);
+			//Humidity Sensor
+			rfcx_read_humid(&hih6130);
+
+			usart_send_string("HIH6130:\r\n");
+			dtostrf((double)hih6130.humidity, 5, 2, tmp_str);
+			sprintf(message, "\tHumidity: %s%%\r\n", tmp_str);
+			usart_send_string(message);
+
+			dtostrf((double)hih6130.temperature, 5, 2, tmp_str);
+			sprintf(message, "\tTemperature: %sC\r\n", tmp_str);
+			usart_send_string(message);
+
+			switch(hih6130.status) {
+				case HUMID_STATUS_NORMAL:
+					sprintf(status, "Normal");
+					break;
+				case HUMID_STATUS_STALE:
+					sprintf(status, "STALE DATA");
+					break;
+				case HUMID_STATUS_COMMAND:
+					sprintf(status, "Command Mode");
+					break;
+				case HUMID_STATUS_DIAG:
+					sprintf(status, "Diagnostic Condition");
+					break;
+				default:
+					sprintf(status, "UNKNOWN");
+					break;
+			}
+
+			sprintf(message, "\tStatus: %s\r\n", status);
+			usart_send_string(message);
+
+			//Voltage/Current ADC
+			// rfcx_read_adc(&ads1015);
+			//
+			// dtostrf((double)ads1015.input_voltage, 5, 2, tmp_str);
+			// sprintf(message, "Input Voltage: %sV\r\n", tmp_str);
+			// usart_send_string(message);
+			//
+			// dtostrf((double)ads1015.output_voltage, 5, 2, tmp_str);
+			// sprintf(message, "Output Voltage: %sV\r\n", tmp_str);
+			// usart_send_string(message);
+			//
+			// dtostrf((double)ads1015.input_current, 5, 2, tmp_str);
+			// sprintf(message, "Input Current: %smA\r\n", tmp_str);
+			// usart_send_string(message);
+			//
+			// dtostrf((double)ads1015.output_current, 5, 2, tmp_str);
+			// sprintf(message, "Output Current: %smA\r\n", tmp_str);
+			// usart_send_string(message);
+
+			usart_send_string("-----------------------------\r\n");
 
 			sensors = false;
 		}
@@ -131,6 +184,15 @@ int peripheral_init(void) {
 int device_init(void) {
 	int ret = 0;
 
+	//Initialize external I2C temp sensor (LM75BD)
+	ret = rfcx_temp_init();
+	if(ret) {
+		usart_send_string("<-- ERROR: Error initializing temp sensor -->\r\n");
+		return ret;
+	} else {
+		usart_send_string("Successfully initialized temp sensor\r\n");
+	}
+
 	//Initialize external I2C ADC (ADS1015)
 	// ret = rfcx_adc_init();
 	// if(ret) {
@@ -139,12 +201,13 @@ int device_init(void) {
 	// 	 usart_send_string("Successfully initialized ADC\r\n");
 	// }
 
-	//Initialize external I2C temp sensor (LM75BD)
-	ret = rfcx_temp_init();
+	//Initialize external I2C humidity sensor (HIH6130)
+	ret = rfcx_humid_init();
 	if(ret) {
-		usart_send_string("<-- ERROR: Error initializing temp sensor -->\r\n");
+		usart_send_string("<-- ERROR: Error initializing humidity sensor -->\r\n");
+		return ret;
 	} else {
-		usart_send_string("Successfully initialized temp sensor\r\n");
+		usart_send_string("Successfully initialized humidity sensor\r\n");
 	}
 
 	return ret;

@@ -23,8 +23,8 @@
 #include "utilities/usart.h"
 
 //USART Settings
-#define FOSC 8000000 // Clock Speed (Hz)
-#define BAUD 9600	  // Baud Rate
+#define FOSC 8000000        // Clock Speed (Hz)
+#define BAUD 9600           // Baud Rate
 #define UBRR (((((FOSC * 10) / (16L * BAUD)) + 5) / 10) - 1)
 
 //Timer Definitions
