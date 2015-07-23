@@ -60,7 +60,7 @@ Running the 8MHz setup (`make setup_8MHz`) only changes the low fuse to remove t
 
 This is semi-optional because we don't *really* need to run at 8MHz. During testing we have been using 8MHz, but there is no reason we couldn't run at 1MHz or lower.
 
-If you decide not to run any `make setup_...` or run `make setup_1MHz`, which will then use the 1MHz clock, remember to modify the `FOSC` macro in [rfcx_mcu.h](./rfcx_mcu.h) to reflect the correct clock speed.
+If you decide not to run any `make setup_...` or run `make setup_1MHz`, which will then use the 1MHz clock, remember to modify the `F_CPU` macro in [rfcx_mcu.h](./rfcx_mcu.h) to reflect the correct clock speed.
 
 ###AVRISP mkII Setup
 See below if you are using the AVRISP mkII on Ubuntu (the recommended setup). You may try to use the programmer without first configuring it as described below, but if you run into issues then please consult the instructions on setting up the programmer at the end of this document.
@@ -171,7 +171,7 @@ Proceed through the following steps to configure the chips:
 1. Configure the USB Descriptor:
     1. Change from `Bus Powered` to `Self Powered`
     2. Change `Max Bus Power` to `0 mAmps`
-    
+
     ![1](./ftdi/1_usb_config_descriptor.PNG)
 2. Configure the CBUS Signals (under `Hardware Specific`)
     1. `C0 -> GPIO`
