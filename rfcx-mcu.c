@@ -158,6 +158,8 @@ void battery_status_string(char * str, unsigned char status) {
 		// case TEMPERATURE_FAULT:
 		// 	sprintf(str, "Temperature Fault");
 		// 	break;
+		case BAT_STATUS_ERROR:
+			sprintf(str, "ERROR");
 		default:
 			sprintf(str, "UNKNOWN");
 			break;

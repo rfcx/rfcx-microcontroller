@@ -29,6 +29,7 @@
 #define CHARGE_COMPLETE     0x00    //LOW
 #define SLEEP_MODE          0x02    //HIGH_Z (Input = Output)
 #define TEMPERATURE_FAULT   SLEEP_MODE    //Temperature fault and sleep mode share the same value for some reason...
+#define BAT_STATUS_ERROR    0xE0    //Error indicator
 
 typedef struct battery_t {
     unsigned char status;

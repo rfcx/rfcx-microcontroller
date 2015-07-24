@@ -345,17 +345,3 @@ void convert_humid_data(humid_data_t * data) {
 
     return;
 }
-
-//Convert a binary value into a decimal number
-//@TODO This function doesn't make sense... this is no different than just typecasting a char to an int: `... = (int)byte;` What is this function for?
-// int convert_from_binary(char byte) {
-//     int sum = 0;
-//     sum += ((int)(byte & 00000001));
-//     sum += ((int)(byte & 00000010)*2);
-//     sum += ((int)(byte & 00000100)*4);
-//     sum += ((int)(byte & 00001000)*8);
-//     sum += ((int)(byte & 00010000)*16);
-//     sum += ((int)(byte & 00100000)*32);
-//     sum += ((int)(byte & 01000000)*64);
-//     return sum;
-// }

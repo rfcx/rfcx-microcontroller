@@ -33,8 +33,8 @@ void rfcx_batteries_status(batteries_t * batteries) {
 
 unsigned char rfcx_battery_status(unsigned char id) {
     unsigned char status = 0x00;
-    unsigned char first = 0x00;
-    unsigned char second = 0x00;
+    bool first = 0x00;
+    bool second = 0x00;
 
     unsigned char input_pin = 0x00;
     unsigned char output_pin = 0x00;
@@ -53,32 +53,42 @@ unsigned char rfcx_battery_status(unsigned char id) {
 
     //This should never happen...
     else {
-        return TEMPERATURE_FAULT;
+        return BAT_STATUS_ERROR;
     }
 
-    //Read input pin initially
-    first = (PINC & _BV(input_pin));
+    //Clear output pin LOW
+    PORTC &= ~_BV(output_pin);
 
-    //Toggle output pin
-    PORTC ^= _BV(output_pin);
+    //Read input pin initially
+    first = (bool)(PINC & _BV(input_pin));
+
+    //Set output pin HIGH
+    PORTC |= _BV(output_pin);
 
     //Read again
-    second = (PINC & _BV(input_pin));
+    second = (bool)(PINC & _BV(input_pin));
 
-    //Toggle output back
-    PORTC ^= _BV(output_pin);
+    //Clear output again
+    PORTC &= ~_BV(output_pin);
 
-    //If pin status is unchanged it is in High Z mode (sleep mode/temp fault)
-    if(first == second) {
+    //If input pin followed output (low -> high) it is in High Z mode (sleep mode/temp fault)
+    if((!first) && second) {
         return SLEEP_MODE;
     }
 
-    //Was high (charging)
+    //Charging or charged
     else {
-        if(first) {
+        //Remained high both times (charging)
+        if(first && second) {
             return CHARGING;
-        } else {
+        }
+
+        //Remaind low both times (charged)
+        else if(!(first && second)) {
             return CHARGE_COMPLETE;
         }
     }
+
+    //Shouldn't ever get here
+    return BAT_STATUS_ERROR;
 }
