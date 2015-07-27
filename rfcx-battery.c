@@ -26,6 +26,11 @@ void rfcx_batteries_init(void) {
     PORTC &= ~_BV(BAT_2_OUTPUT_PIN);
 }
 
+void rfcx_batteries_data_init(batteries_t * batteries) {
+    batteries->battery_1.status = BAT_STATUS_ERROR;
+    batteries->battery_2.status = BAT_STATUS_ERROR;
+}
+
 void rfcx_batteries_status(batteries_t * batteries) {
     batteries->battery_1.status = rfcx_battery_status(BATTERY_1);
     batteries->battery_2.status = rfcx_battery_status(BATTERY_2);

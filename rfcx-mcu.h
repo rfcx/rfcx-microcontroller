@@ -12,6 +12,9 @@
 #ifndef RFCX_MCU_H
 #define RFCX_MCU_H
 
+//ARDUINO: DEBUG FOR USART ONLY: Comment out for normal operation
+//#define ARDUINO
+
 #include "rfcx-globals.h"   //Global definitions
 
 #include <util/delay.h>
@@ -27,9 +30,6 @@
 #include "utilities/delay.h"
 #include "utilities/usart.h"
 
-//ARDUINO: DEBUG FOR USART ONLY: Comment out for normal operation
-#define ARDUINO
-
 //USART Settings
 #define FOSC F_CPU          //Clock Speed (Hz)
 #define BAUD 9600           //Baud Rate
@@ -39,8 +39,13 @@
 #define TIMER1_COUNT    ((FOSC / 1024) - 1)     //Timer 1 count value for CTC mode: 1 second, at 1024 prescaler
 
 //Pin Definitions
-#define LED_PIN     PB2     //PB2 is the board LED, PB5 is the Arduino LED
-#define LED_DD      DDB2
+#ifdef ARDUINO
+    #define LED_PIN     PB5
+    #define LED_DD      DDB5
+#else
+    #define LED_PIN     PB2     //PB2 is the board LED, PB5 is the Arduino LED
+    #define LED_DD      DDB2
+#endif
 
 int init(void);
 int port_init(void);

@@ -43,6 +43,7 @@ typedef struct batteries_t {
 }batteries_t;
 
 void rfcx_batteries_init(void);
+void rfcx_batteries_data_init(batteries_t *);
 void rfcx_batteries_status(batteries_t *);
 unsigned char rfcx_battery_status(unsigned char);
 void rfcx_battery_status_string(char *, unsigned char);

@@ -43,17 +43,28 @@ int main(void) {
 
 	int ret = 0;
 
+	memset(message, 0, 128);
+
 	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
 	usart_init(UBRR);
 
 	//Initialization
+#ifndef ARDUINO
 	usart_send_string("Initializing...\r\n");
+#endif
 	ret = init();
+#ifndef ARDUINO
 	if(ret) {
 		usart_send_string("<-- ERROR: Initialization failed -->\r\n");
 	} else {
 		usart_send_string("Initialization successful\r\n");
 	}
+#endif
+
+	rfcx_temp_data_init(&lm75);
+	rfcx_humid_data_init(&hih6130);
+	rfcx_adc_data_init(&ads1015);
+	rfcx_batteries_data_init(&batteries);
 
 	//Main Loop
 	while(true) {
@@ -61,9 +72,9 @@ int main(void) {
 		if(sensors) {
 #ifdef ARDUINO
 			rfcx_read_temp(&lm75);
-			rfcx_read_humid(&hih6130);
+			//rfcx_read_humid(&hih6130);
 			//rfcx_read_adc(&ads1015);
-			rfcx_batteries_status(&batteries);
+			//rfcx_batteries_status(&batteries);
 
 			rfcx_android_package(&android, &lm75, &hih6130, &ads1015, &batteries);
 			rfcx_android_serialize(message, &android);
@@ -118,8 +129,8 @@ int main(void) {
 			rfcx_batteries_status(&batteries);
 
 			usart_send_string("Batteries:\r\n");
-			battery_status_string(battery_1_status, batteries.battery_1.status);
-			battery_status_string(battery_2_status, batteries.battery_2.status);
+			rfcx_battery_status_string(battery_1_status, batteries.battery_1.status);
+			rfcx_battery_status_string(battery_2_status, batteries.battery_2.status);
 
 			sprintf(message, 	"\tBattery 1 Status: %s\r\n"
 								"\tBattery 2 Status: %s\r\n",
@@ -128,9 +139,8 @@ int main(void) {
 			usart_send_string(message);
 
 			usart_send_string("-----------------------------\r\n");
-
-			sensors = false;
 #endif//ARDUINO
+			sensors = false;
 		}
 	}
 
@@ -205,10 +215,14 @@ int device_init(void) {
 	//Initialize external I2C temp sensor (LM75BD)
 	ret = rfcx_temp_init();
 	if(ret) {
+#ifndef ARDUINO
 		usart_send_string("<-- ERROR: Error initializing temp sensor -->\r\n");
+#endif
 		return ret;
 	} else {
+#ifndef ARDUINO
 		usart_send_string("Successfully initialized temp sensor\r\n");
+#endif
 	}
 
 	//Initialize external I2C ADC (ADS1015)
@@ -222,10 +236,14 @@ int device_init(void) {
 	//Initialize external I2C humidity sensor (HIH6130)
 	ret = rfcx_humid_init();
 	if(ret) {
+#ifndef ARDUINO
 		usart_send_string("<-- ERROR: Error initializing humidity sensor -->\r\n");
+#endif
 		return ret;
 	} else {
+#ifndef ARDUINO
 		usart_send_string("Successfully initialized humidity sensor\r\n");
+#endif
 	}
 
 	return ret;

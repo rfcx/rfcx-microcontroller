@@ -51,16 +51,16 @@ void rfcx_android_serialize(char * buffer, android_serial_t * android) {
     dtostrf((double)android->hih6130->humidity, 5, 2, humid_str);
 
     //Serialize in buffer
-    sprintf(buffer, "%lu,%s,%s,%s,%s,%s,%s,%lu,%lu,%lu,%lu",
-        ANDROID_BEGIN_FLAG,
+    sprintf(buffer, "%lu,%s,%s,%s,%s,%s,%s,%lu,%lu,%lu,%lu\r\n",
+        (unsigned long)ANDROID_BEGIN_FLAG,
         iv_str,
         ic_str,
         ov_str,
         oc_str,
         temp_str,
         humid_str,
-        android->hih6130->status,
-        android->batteries->battery_1.status,
-        android->batteries->battery_2.status,
-        ANDROID_END_FLAG);
+        (unsigned long)android->hih6130->status,
+        (unsigned long)android->batteries->battery_1.status,
+        (unsigned long)android->batteries->battery_2.status,
+        (unsigned long)ANDROID_END_FLAG);
 }

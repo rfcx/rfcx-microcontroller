@@ -98,6 +98,11 @@ int rfcx_temp_init(void);
 int rfcx_adc_init(void);
 int rfcx_humid_init(void);
 
+//Data Initialization
+void rfcx_temp_data_init(temp_data_t *);
+void rfcx_humid_data_init(humid_data_t *);
+void rfcx_adc_data_init(adc_data_t *);
+
 //Shutdown
 void rfcx_i2c_shutdown(void);
 void rfcx_temp_shutdown(void);

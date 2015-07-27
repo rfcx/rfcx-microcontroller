@@ -100,6 +100,26 @@ void rfcx_i2c_shutdown(void) {
     i2c_stop();
 }
 
+void rfcx_temp_data_init(temp_data_t * data) {
+    memset(&(data->raw), 0, sizeof(temp_raw_t));
+    data->temperature = 0.0;
+}
+
+void rfcx_humid_data_init(humid_data_t * data) {
+    memset(&(data->raw), 0, sizeof(humid_raw_t));
+    data->humidity = 0.0;
+    data->temperature = 0.0;
+    data->status = HUMID_STATUS_NORMAL;
+}
+
+void rfcx_adc_data_init(adc_data_t * data) {
+    memset(&(data->raw), 0, sizeof(adc_raw_t));
+    data->input_voltage = 0.0;
+    data->input_current = 0.0;
+    data->output_voltage = 0.0;
+    data->output_current = 0.0;
+}
+
 //Shutdown temperature sensor:
 // Set Temp Sensor control address to
 // active high comparator mode, shutdown mode
