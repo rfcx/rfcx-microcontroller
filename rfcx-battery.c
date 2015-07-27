@@ -32,7 +32,6 @@ void rfcx_batteries_status(batteries_t * batteries) {
 }
 
 unsigned char rfcx_battery_status(unsigned char id) {
-    unsigned char status = 0x00;
     bool first = 0x00;
     bool second = 0x00;
 
@@ -76,17 +75,14 @@ unsigned char rfcx_battery_status(unsigned char id) {
         return SLEEP_MODE;
     }
 
-    //Charging or charged
-    else {
-        //Remained high both times (charging)
-        if(first && second) {
+    //Remained high both times (charging)
+    else if(first && second) {
             return CHARGING;
-        }
+    }
 
-        //Remaind low both times (charged)
-        else if(!(first && second)) {
-            return CHARGE_COMPLETE;
-        }
+    //Remained low both times (charged)
+    else if(!(first && second)) {
+        return CHARGE_COMPLETE;
     }
 
     //Shouldn't ever get here

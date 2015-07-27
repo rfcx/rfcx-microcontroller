@@ -13,6 +13,7 @@
 #define RFCX_BATTERY_H
 
 #include <avr/io.h> //Pin definitions
+#include <stdbool.h>
 
 //Battery Identifiers
 #define BATTERY_1           0x01
