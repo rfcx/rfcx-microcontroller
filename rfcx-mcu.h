@@ -23,8 +23,12 @@
 
 #include "rfcx-i2c.h"
 #include "rfcx-battery.h"
+#include "rfcx-android.h"
 #include "utilities/delay.h"
 #include "utilities/usart.h"
+
+//ARDUINO: DEBUG FOR USART ONLY: Comment out for normal operation
+#define ARDUINO
 
 //USART Settings
 #define FOSC F_CPU          //Clock Speed (Hz)
@@ -43,8 +47,5 @@ int port_init(void);
 int timer1_init(void);
 int peripheral_init(void);
 int device_init(void);
-
-//Helper functions
-void battery_status_string(char *, unsigned char);
 
 #endif//RFCX_MCU_H

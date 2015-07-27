@@ -27,17 +27,21 @@ int main(void) {
 	//Sensor/battery structures
 	batteries_t batteries;
 	temp_data_t lm75;
-	// adc_data_t ads1015;
+	adc_data_t ads1015;
 	humid_data_t hih6130;
 
-	char message[128];
-	char humid_status[128];
-	char battery_1_status[128];
-	char battery_2_status[128];
-	char tmp_str[6];
-	int ret = 0;
+	//Android Serial Structure
+	android_serial_t android;
 
-	memset(tmp_str, 0, 6);
+	char message[128];
+#ifndef ARDUINO
+	char humid_status[32];
+	char battery_1_status[32];
+	char battery_2_status[32];
+	char tmp_str[6];
+#endif//ARDUINO
+
+	int ret = 0;
 
 	//Initialize USART at 9600 baud (UBRR defined in rfcx-mcu.h)
 	usart_init(UBRR);
@@ -55,6 +59,17 @@ int main(void) {
 	while(true) {
 		//Sensor Loop
 		if(sensors) {
+#ifdef ARDUINO
+			rfcx_read_temp(&lm75);
+			rfcx_read_humid(&hih6130);
+			//rfcx_read_adc(&ads1015);
+			rfcx_batteries_status(&batteries);
+
+			rfcx_android_package(&android, &lm75, &hih6130, &ads1015, &batteries);
+			rfcx_android_serialize(message, &android);
+
+			usart_send_string(message);
+#else//MAIN BOARD
 			usart_send_string("\r\n-----------------------------\r\n");
 			//Temperature Sensor
 			rfcx_read_temp(&lm75);
@@ -76,30 +91,7 @@ int main(void) {
 			sprintf(message, "\tTemperature: %sC\r\n", tmp_str);
 			usart_send_string(message);
 
-			// sprintf(message, "\tRaw:\t msb: 0x%02X\r\n"
-			// 						"\t\t lsb: 0x%02X\r\n",
-			// 						hih6130.raw.temp_msb,
-			// 						hih6130.raw.temp_lsb);
-			// usart_send_string(message);
-
-			switch(hih6130.status) {
-				case HUMID_STATUS_NORMAL:
-					sprintf(humid_status, "Normal");
-					break;
-				case HUMID_STATUS_STALE:
-					sprintf(humid_status, "STALE DATA");
-					break;
-				case HUMID_STATUS_COMMAND:
-					sprintf(humid_status, "Command Mode");
-					break;
-				case HUMID_STATUS_DIAG:
-					sprintf(humid_status, "Diagnostic Condition");
-					break;
-				default:
-					sprintf(humid_status, "UNKNOWN");
-					break;
-			}
-
+			rfcx_humid_status_string(humid_status, hih6130.status);
 			sprintf(message, "\tStatus: %s\r\n", humid_status);
 			usart_send_string(message);
 
@@ -123,8 +115,9 @@ int main(void) {
 			// usart_send_string(message);
 
 			//Battery Status
-			usart_send_string("Batteries:\r\n");
+			rfcx_batteries_status(&batteries);
 
+			usart_send_string("Batteries:\r\n");
 			battery_status_string(battery_1_status, batteries.battery_1.status);
 			battery_status_string(battery_2_status, batteries.battery_2.status);
 
@@ -137,33 +130,11 @@ int main(void) {
 			usart_send_string("-----------------------------\r\n");
 
 			sensors = false;
+#endif//ARDUINO
 		}
 	}
 
 	return 0;
-}
-
-void battery_status_string(char * str, unsigned char status) {
-	switch(status) {
-		case CHARGING:
-			sprintf(str, "Charging");
-			break;
-		case CHARGE_COMPLETE:
-			sprintf(str, "Charge Complete");
-			break;
-		case SLEEP_MODE:
-			sprintf(str, "Sleep Mode");
-			break;
-		//@TODO How to identify between Sleep Mode and Temp Fault?
-		// case TEMPERATURE_FAULT:
-		// 	sprintf(str, "Temperature Fault");
-		// 	break;
-		case BAT_STATUS_ERROR:
-			sprintf(str, "ERROR");
-		default:
-			sprintf(str, "UNKNOWN");
-			break;
-	}
 }
 
 int init(void) {
