@@ -116,4 +116,7 @@ void convert_adc_data(adc_data_t *);
 float convert_adc_data_pin(adc_data_t *, int);
 void convert_humid_data(humid_data_t *);
 
+//String Conversion Helpers
+void rfcx_humid_status_string(char *, unsigned char);
+
 #endif//RFCX_I2C_H

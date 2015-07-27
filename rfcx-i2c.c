@@ -345,3 +345,23 @@ void convert_humid_data(humid_data_t * data) {
 
     return;
 }
+
+void rfcx_humid_status_string(char * str, unsigned char status) {
+    switch(status) {
+        case HUMID_STATUS_NORMAL:
+            sprintf(str, "Normal");
+            break;
+        case HUMID_STATUS_STALE:
+            sprintf(str, "STALE DATA");
+            break;
+        case HUMID_STATUS_COMMAND:
+            sprintf(str, "Command Mode");
+            break;
+        case HUMID_STATUS_DIAG:
+            sprintf(str, "Diagnostic Condition");
+            break;
+        default:
+            sprintf(str, "UNKNOWN");
+            break;
+    }
+}
