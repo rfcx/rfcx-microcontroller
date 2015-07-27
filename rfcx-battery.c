@@ -88,3 +88,26 @@ unsigned char rfcx_battery_status(unsigned char id) {
     //Shouldn't ever get here
     return BAT_STATUS_ERROR;
 }
+
+void rfcx_battery_status_string(char * str, unsigned char status) {
+	switch(status) {
+		case CHARGING:
+			sprintf(str, "Charging");
+			break;
+		case CHARGE_COMPLETE:
+			sprintf(str, "Charge Complete");
+			break;
+		case SLEEP_MODE:
+			sprintf(str, "Sleep Mode");
+			break;
+		//@TODO How to identify between Sleep Mode and Temp Fault?
+		// case TEMPERATURE_FAULT:
+		// 	sprintf(str, "Temperature Fault");
+		// 	break;
+		case BAT_STATUS_ERROR:
+			sprintf(str, "ERROR");
+		default:
+			sprintf(str, "UNKNOWN");
+			break;
+	}
+}

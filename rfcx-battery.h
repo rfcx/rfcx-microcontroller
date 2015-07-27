@@ -14,6 +14,7 @@
 
 #include <avr/io.h> //Pin definitions
 #include <stdbool.h>
+#include <stdio.h>
 
 //Battery Identifiers
 #define BATTERY_1           0x01
@@ -44,5 +45,6 @@ typedef struct batteries_t {
 void rfcx_batteries_init(void);
 void rfcx_batteries_status(batteries_t *);
 unsigned char rfcx_battery_status(unsigned char);
+void rfcx_battery_status_string(char *, unsigned char);
 
 #endif//RFCX_BATTERY_H
