@@ -190,6 +190,7 @@ int rfcx_read_adc(adc_data_t * data) {
     return OK;
 }
 
+//This example might help: https://github.com/adafruit/Adafruit_ADS1X15/blob/master/Adafruit_ADS1015.cpp
 int rfcx_read_adc_pin(adc_data_t * data, int pin) {
     unsigned char value, value2, value3;
     value = 0x01;
