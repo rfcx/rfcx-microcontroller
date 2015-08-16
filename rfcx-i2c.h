@@ -35,6 +35,14 @@
 #define ADC_INPUT_CURRENT_PIN   0x02
 #define ADC_OUTPUT_CURRENT_PIN  0x03
 
+//ADC Conversions
+#define ADC_VOLTAGE_SCALE       (1.0 / (2100.0 / (1540.0 + 2100.0)))    //1.54k + 2.1k resistor divider = ~1.733333333 scale
+#define ADC_VOLTAGE_MAX         3.3                             //ADC has range of 0-3.3V (Vcc)
+#define ADC_RESOLUTION          (0x01 << 12)                    //12 bit resolution
+#define ADC_OPAMP_GAIN          (1.0 + (2550.0 / 200000.0))     //Vout = (1 + Rf/Ri)*Vin, Vin = (V+ - V-), Rf = 2.55k, Ri = 200k
+#define ADC_CUR_SENSE_RES       (0.51)                          //Current sense resistor = 0.51Ohms
+#define ADC_CURRENT_SCALE       (ADC_OPAMP_GAIN / ADC_CUR_SENSE_RES)    //Opamp gain, then divide by sense resistor
+
 //Humidity Sensor Status
 #define HUMID_STATUS_NORMAL     0x00    //Normal operation
 #define HUMID_STATUS_STALE      0x01    //Stale data
@@ -71,10 +79,10 @@ typedef struct adc_raw_t {
 
 typedef struct adc_data_t {
     adc_raw_t raw;          //Raw bytes
-    float input_voltage;    //Input voltage
-    float output_voltage;   //Output voltage
-    float input_current;    //Input current
-    float output_current;   //Output current
+    float input_voltage;    //Input voltage (V)
+    float output_voltage;   //Output voltage (V)
+    float input_current;    //Input current (A)
+    float output_current;   //Output current (A)
 }adc_data_t;
 
 //Data structures for HIH6130 humidity + temp sensor

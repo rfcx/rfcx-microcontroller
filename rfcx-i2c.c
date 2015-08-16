@@ -212,17 +212,20 @@ int rfcx_read_adc_pin(adc_data_t * data, int pin) {
             break;
     }
 
-    value3 = 0xEF;
+    //value3 = 0xEF;
+    value3 = 0x83;
+
     i2c_start_wait(ADC_ADDR + I2C_WRITE);
 
     //Set the pointer to the configuration register
     i2c_write(value);
 
-    //Put the ADC in single conversion mode, read from AIN0
+    //Put the ADC in single conversion mode, select pin
     i2c_write(value2);
 
     //Set the data rate to 3300, disable the comparator
     i2c_write(value3);
+    //i2c_stop();
 
     value = 0x00;
     i2c_rep_start(ADC_ADDR + I2C_WRITE);
@@ -240,18 +243,22 @@ int rfcx_read_adc_pin(adc_data_t * data, int pin) {
     //Store correctly based on pin
     switch(pin) {
         case ADC_INPUT_VOLTAGE_PIN:
+            usart_send_string("Input Voltage: ");
             data->raw.input_voltage_msb = msb;
             data->raw.input_voltage_lsb = lsb;
             break;
         case ADC_OUTPUT_VOLTAGE_PIN:
+            usart_send_string("Output Voltage: ");
             data->raw.output_voltage_msb = msb;
             data->raw.output_voltage_lsb = lsb;
             break;
         case ADC_INPUT_CURRENT_PIN:
+            usart_send_string("Input Current: ");
             data->raw.input_current_msb = msb;
             data->raw.input_current_lsb = lsb;
             break;
         case ADC_OUTPUT_CURRENT_PIN:
+            usart_send_string("Output Current: ");
             data->raw.output_current_msb = msb;
             data->raw.output_current_lsb = lsb;
             break;
@@ -260,6 +267,10 @@ int rfcx_read_adc_pin(adc_data_t * data, int pin) {
             data->raw.input_voltage_lsb = lsb;
             break;
     }
+
+    char str[32];
+    sprintf(str, "msb: 0x%02X, lsb: 0x%02X\r\n", msb, lsb);
+    usart_send_string(str);
 
     return OK;
 }
@@ -324,27 +335,62 @@ void convert_temp_data(temp_data_t * data) {
 
 void convert_adc_data(adc_data_t * data) {
     data->input_voltage = convert_adc_data_pin(data, ADC_INPUT_VOLTAGE_PIN);
-    //...
+    data->input_current = convert_adc_data_pin(data, ADC_INPUT_CURRENT_PIN);
+    data->output_voltage = convert_adc_data_pin(data, ADC_OUTPUT_VOLTAGE_PIN);
+    data->output_current = convert_adc_data_pin(data, ADC_OUTPUT_CURRENT_PIN);
 }
 
+//Perform conversion for individual pin
 float convert_adc_data_pin(adc_data_t * data, int pin) {
-    //Perform conversion for individual pin
-    //Should be able to use pin nubmer as offset into the raw struct to make this easier
-
     //2-byte conversion register
     int tmp = 0;
-    int msb = 0; //Set to correct msb
-    int lsb = 0; //Set to correct lsb
+    int msb = 0;
+    int lsb = 0;
     float voltage = 0.0;
 
+    //Some C pointer witchcraft...
+    msb = (int) *((unsigned char *)&(data->raw) + (pin * 2 * sizeof(unsigned char)));
+    lsb = (int) *((unsigned char *)&(data->raw) + (pin * 2 * sizeof(unsigned char)) + 1);
+
+    char str[32];
+    sprintf(str, "msb: 0x%02X, lsb: 0x%02X\r\n", msb, lsb);
+    usart_send_string(str);
+
+    //Shift 'em
     tmp = ((msb << 8) | lsb) >> 4;
 
-    voltage = ((float)tmp / (0x01 << 12)) * 3.3;
+    sprintf(str, "tmp: 0x%02X\r\n", tmp);
+    usart_send_string(str);
 
-    //Rerturn voltage
+    //Scale by resolution
+    voltage = ((float)tmp / ADC_RESOLUTION) * ADC_VOLTAGE_MAX;
+
+    char tmp_str[16];
+    char message[32];
+
+    dtostrf((double)voltage, 5, 2, tmp_str);
+    sprintf(message, "Raw Voltage (%d):  %sV\r\n", (pin + 4), tmp_str);
+    usart_send_string(message);
+
+    switch(pin) {
+        case ADC_INPUT_VOLTAGE_PIN:
+            voltage *= ADC_VOLTAGE_SCALE;
+            break;
+        case ADC_OUTPUT_VOLTAGE_PIN:
+            voltage *= ADC_VOLTAGE_SCALE;
+            break;
+        case ADC_INPUT_CURRENT_PIN:
+            voltage *= ADC_CURRENT_SCALE;
+            break;
+        case ADC_OUTPUT_CURRENT_PIN:
+            voltage *= ADC_CURRENT_SCALE;
+            break;
+        default:
+            break;
+    }
+
+    //Return voltage/current
     return voltage;
-
-    //@TODO RETURN VOLTAGE IF VOLTAGE, ELSE CONVERT TO CURRENT VIA ANOTHER FUNCTION
 }
 
 void convert_humid_data(humid_data_t * data) {
