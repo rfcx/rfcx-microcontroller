@@ -107,23 +107,23 @@ int main(void) {
 			usart_send_string(message);
 
 			//Voltage/Current ADC
-			// rfcx_read_adc(&ads1015);
-			//
-			// dtostrf((double)ads1015.input_voltage, 5, 2, tmp_str);
-			// sprintf(message, "Input Voltage: %sV\r\n", tmp_str);
-			// usart_send_string(message);
-			//
-			// dtostrf((double)ads1015.output_voltage, 5, 2, tmp_str);
-			// sprintf(message, "Output Voltage: %sV\r\n", tmp_str);
-			// usart_send_string(message);
-			//
-			// dtostrf((double)ads1015.input_current, 5, 2, tmp_str);
-			// sprintf(message, "Input Current: %smA\r\n", tmp_str);
-			// usart_send_string(message);
-			//
-			// dtostrf((double)ads1015.output_current, 5, 2, tmp_str);
-			// sprintf(message, "Output Current: %smA\r\n", tmp_str);
-			// usart_send_string(message);
+			rfcx_read_adc(&ads1015);
+
+			dtostrf((double)ads1015.input_voltage, 5, 2, tmp_str);
+			sprintf(message, "\tInput Voltage:  %sV\r\n", tmp_str);
+			usart_send_string(message);
+
+			dtostrf((double)ads1015.output_voltage, 5, 2, tmp_str);
+			sprintf(message, "\tOutput Voltage: %sV\r\n", tmp_str);
+			usart_send_string(message);
+
+			dtostrf((double)ads1015.input_current * 1000.0, 5, 2, tmp_str);
+			sprintf(message, "\tInput Current:  %smA\r\n", tmp_str);
+			usart_send_string(message);
+
+			dtostrf((double)ads1015.output_current * 1000.0, 5, 2, tmp_str);
+			sprintf(message, "\tOutput Current: %smA\r\n", tmp_str);
+			usart_send_string(message);
 
 			//Battery Status
 			rfcx_batteries_status(&batteries);
@@ -226,12 +226,12 @@ int device_init(void) {
 	}
 
 	//Initialize external I2C ADC (ADS1015)
-	// ret = rfcx_adc_init();
-	// if(ret) {
-	// 	 usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
-	// } else {
-	// 	 usart_send_string("Successfully initialized ADC\r\n");
-	// }
+	ret = rfcx_adc_init();
+	if(ret) {
+		 usart_send_string("<-- ERROR: Error initializing ADC -->\r\n");
+	} else {
+		 usart_send_string("Successfully initialized ADC\r\n");
+	}
 
 	//Initialize external I2C humidity sensor (HIH6130)
 	ret = rfcx_humid_init();
