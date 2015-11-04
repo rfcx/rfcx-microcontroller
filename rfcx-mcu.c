@@ -9,6 +9,14 @@
 *   www.rfcx.org
 **********************************************************/
 
+// Note: I really don't like the use of DDRX, PORTX, or PINX in
+//       functions, I would really like those to be replaced with
+//       with macros defined in header files like:
+//         #define LED_DDR   DDRB
+//         #define LED_PRT   PORTB
+//         ect
+//    - Jesse
+
 #include "rfcx-mcu.h"
 
 //Don't forget `volatile`!
@@ -64,6 +72,7 @@ int main(void) {
 	rfcx_temp_data_init(&lm75);
 	rfcx_humid_data_init(&hih6130);
 	rfcx_adc_data_init(&ads1015);
+	rfcx_batteries_init(&batteries);
 	rfcx_batteries_data_init(&batteries);
 
 	//Main Loop
@@ -171,9 +180,6 @@ int init(void) {
 int port_init(void) {
 	//Initialize LED as output
 	DDRB |= _BV(LED_DD);
-
-	//Initialize battery inputs/outputs
-	rfcx_batteries_init();
 
 	return 0;
 }
