@@ -15,7 +15,7 @@
 #ifdef ARDUINO
     #define F_CPU 16000000UL
 #else
-    #define F_CPU 8000000UL     //Clock Speed (Hz)
+    #define F_CPU 1000000UL     //Clock Speed (Hz)
 #endif
 
 #endif//RFCX_GLOBALS_H
