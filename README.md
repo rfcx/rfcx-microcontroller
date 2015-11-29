@@ -36,7 +36,8 @@ On Windows install `WinAVR` ([winavr.sourceforge.net/](http://winavr.sourceforge
 ####OS X
 On OS X, install Homebrew ([http://brew.sh/](http://brew.sh/)) or your favorite package manager:
 ```bash
-brew install avr-gcc
+brew tap osx-cross/avr
+brew install avr-libc
 ```
 ```bash
 brew install avrdude
