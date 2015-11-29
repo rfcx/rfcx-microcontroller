@@ -12,10 +12,6 @@
 #ifndef RFCX_GLOBALS_H
 #define RFCX_GLOBALS_H
 
-#ifdef ARDUINO
-    #define F_CPU 16000000UL
-#else
-    #define F_CPU 1000000UL     //Clock Speed (Hz)
-#endif
+#define F_CPU 8000000UL     //Clock Speed (Hz): Note that USART is garbled when using 1MHz instead of 8MHz
 
 #endif//RFCX_GLOBALS_H
