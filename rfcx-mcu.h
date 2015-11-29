@@ -13,7 +13,7 @@
 #define RFCX_MCU_H
 
 //ARDUINO: DEBUG FOR USART ONLY: Comment out for normal operation
-//#define ARDUINO
+#define ARDUINO
 
 #include "rfcx-globals.h"   //Global definitions
 
