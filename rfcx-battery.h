@@ -2,15 +2,11 @@
 *	RFCx Microcontroller Software - Battery
 *
 *	Kalee Stutzman 	(stutzmak@mail.gvsu.edu)
-*	Joe Gibson	(gibsjose@mail.gvsu.edu)
+*	Joe Gibson      (gibsjose@mail.gvsu.edu)
 *	Jesse Millwood  (millwooj@mail.gvsu.edu)
 *
 *	08 July 2015
-*	revised 02 November 2015
-*
-*	This header file is meant to work with the
-*	microchip MCP73871 battery charge management
-*	controller 
+*	02 November 2015
 *
 *   www.rfcx.org
 **********************************************************/

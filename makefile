@@ -30,7 +30,6 @@
 
 # MCU name
 MCU = atmega328p
-MCUDUDE = m328p
 
 # RFCX Programming Interface ('arduino' for Arduino debug or 'avrispmkII' for the board)
 RFCX_PROGRAMMER ?= avrispmkII
@@ -129,8 +128,7 @@ AVRDUDE_PORT = $(RFCX_PORT)	   # programmer connected to serial device
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
 
-#AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
-AVRDUDE_FLAGS = -p $(MCUDOOD) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 
 # Uncomment the following if you want avrdude's erase cycle counter.
 # Note that this counter needs to be initialized first using -Yn,

@@ -2,18 +2,11 @@
 *	RFCx Microcontroller Software - Battery
 *
 *	Kalee Stutzman 	(stutzmak@mail.gvsu.edu)
-*	Joe Gibson	(gibsjose@mail.gvsu.edu)
+*	Joe Gibson      (gibsjose@mail.gvsu.edu)
 *	Jesse Millwood  (millwooj@mail.gvsu.edu)
 *
 *	08 July 2015
-*	revised 02 November 2015
-*
-*	These functions are meant to work with `battery.h`
-*	and provide an interaction with the status pins
-*	on the MCP73871 battery charge management
-*	controller
-*	This code relies on being compiled with the avr-gcc
-*	toolchain
+*	02 November 2015
 *
 *   www.rfcx.org
 **********************************************************/
@@ -41,8 +34,8 @@ void rfcx_batteries_init(batteries_t * batteries) {
     batteries->battery_2.stat2_in  = BAT_2_STAT_2_INPUT_PIN;
     batteries->battery_2.stat2_out = BAT_2_STAT_2_OUTPUT_PIN;
 
-    
-    // Set Data Direction to Inputs 
+
+    // Set Data Direction to Inputs
     batteries->battery_1.stat1_ddr &= ~_BV(batteries->battery_1.stat1_in);
     batteries->battery_1.stat2_ddr &= ~_BV(batteries->battery_1.stat2_in);
     batteries->battery_2.stat1_ddr &= ~_BV(batteries->battery_2.stat1_in);
@@ -52,7 +45,7 @@ void rfcx_batteries_init(batteries_t * batteries) {
     batteries->battery_1.stat1_ddr |= _BV(batteries->battery_1.stat1_out);
     batteries->battery_1.stat2_ddr |= _BV(batteries->battery_1.stat2_out);
     batteries->battery_2.stat1_ddr |= _BV(batteries->battery_2.stat1_out);
-    batteries->battery_2.stat2_ddr |= _BV(batteries->battery_2.stat2_out);    
+    batteries->battery_2.stat2_ddr |= _BV(batteries->battery_2.stat2_out);
     //Initialize outputs low
     batteries->battery_1.stat1_ddr &= ~_BV(batteries->battery_1.stat1_out);
     batteries->battery_1.stat2_ddr &= ~_BV(batteries->battery_1.stat2_out);
@@ -108,7 +101,7 @@ unsigned char rfcx_battery_status(unsigned char id) {
 	stat1_prt = BAT_2_STAT_1_PORT;
 	stat2_prt = BAT_2_STAT_2_PORT;
 	stat1_pin = BAT_2_STAT_1_PIN;
-	stat2_pin = BAT_2_STAT_2_PIN;	
+	stat2_pin = BAT_2_STAT_2_PIN;
     }
 
     //This should never happen...
@@ -129,7 +122,7 @@ unsigned char rfcx_battery_status(unsigned char id) {
 
     //Read again
     stat1_second = (bool)(stat1_pin & _BV(stat1_in_pin));
-    stat2_second = (bool)(stat2_pin & _BV(stat2_in_pin));    
+    stat2_second = (bool)(stat2_pin & _BV(stat2_in_pin));
 
     //Clear output again
     stat1_prt &= ~_BV(stat1_out_pin);

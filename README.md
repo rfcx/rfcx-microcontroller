@@ -17,14 +17,14 @@ The following steps are required to configure the board:
 After configuring the board, you can then proceed with building the project and programming the board.
 
 ###Required Packages
-To build the software and program the microcontroller, you must have the `avrdude`, `binutils-avr`, `avr-libc`, and `avr-gcc` packages installed (in addition to standard tools like `make`).
+To build the software and program the microcontroller, you must have the `avrdude` and `avr-gcc` packages installed (in addition to standard tools like `make`).
 
 >**NOTE:** On any of the operating systems, an install of the Arduino IDE ([https://www.arduino.cc/en/main/software](https://www.arduino.cc/en/main/software)) will include all of the command line tools necessary, but they may be in strange locations. You can always just make symbolic links to your desired directories, though.
 
 ####Ubuntu
 On Ubuntu (or any Debian-based version of Linux):
 ```bash
-sudo apt-get install avr-gcc binutils-avr avr-libc
+sudo apt-get install avr-gcc
 ```
 ```bash
 sudo apt-get install avrdude
@@ -36,7 +36,8 @@ On Windows install `WinAVR` ([winavr.sourceforge.net/](http://winavr.sourceforge
 ####OS X
 On OS X, install Homebrew ([http://brew.sh/](http://brew.sh/)) or your favorite package manager:
 ```bash
-brew install avr-gcc
+brew tap osx-cross/avr
+brew install avr-libc
 ```
 ```bash
 brew install avrdude
