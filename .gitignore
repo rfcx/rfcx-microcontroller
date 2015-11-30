@@ -16,6 +16,7 @@
 ~*
 *#
 .#*
-
+#Bear make output
+compile_commands.json
 #Target
 rfcx-mcu
