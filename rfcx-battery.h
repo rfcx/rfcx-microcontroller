@@ -71,7 +71,17 @@ typedef struct battery_t {
 typedef struct batteries_t {
     battery_t battery_1;
     battery_t battery_2;
-unsigned char numberofbats;
+
+    //This 'count' variable is useless unless the batteries are
+    //defined as an array of battery_t structures, since if there
+    //are only 2 structures defined, the count will be 2 or less.
+    //This is unecessary complication until we add more than 2
+    //batteries, at which point we will also need to pass the
+    //number of batteries to the init function. Also, this would
+    //have to be added as an option to the compilation. Not
+    //really something we need right now.
+
+    // unsigned char count;
 }batteries_t;
 
 void rfcx_batteries_init(batteries_t *);
