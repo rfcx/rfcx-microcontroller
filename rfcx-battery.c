@@ -82,26 +82,26 @@ unsigned char rfcx_battery_status(unsigned char id) {
 
     //Battery 1
     if(id == BATTERY_1) {
-	stat1_in_pin = BAT_1_STAT_1_INPUT_PIN;
-	stat2_in_pin = BAT_1_STAT_2_INPUT_PIN;
-	stat1_out_pin = BAT_1_STAT_1_OUTPUT_PIN;
-	stat2_out_pin = BAT_1_STAT_2_OUTPUT_PIN;
-	stat1_prt = BAT_1_STAT_1_PORT;
-	stat2_prt = BAT_1_STAT_2_PORT;
-	stat1_pin = BAT_1_STAT_1_PIN;
-	stat2_pin = BAT_1_STAT_2_PIN;
+        stat1_in_pin = BAT_1_STAT_1_INPUT_PIN;
+        stat2_in_pin = BAT_1_STAT_2_INPUT_PIN;
+        stat1_out_pin = BAT_1_STAT_1_OUTPUT_PIN;
+        stat2_out_pin = BAT_1_STAT_2_OUTPUT_PIN;
+        stat1_prt = BAT_1_STAT_1_PORT;
+        stat2_prt = BAT_1_STAT_2_PORT;
+        stat1_pin = BAT_1_STAT_1_PIN;
+        stat2_pin = BAT_1_STAT_2_PIN;
     }
 
     //Battery 2
-    else if(id == BATTERY_2){
-	stat1_in_pin = BAT_2_STAT_1_INPUT_PIN;
-	stat2_in_pin = BAT_2_STAT_2_INPUT_PIN;
-	stat1_out_pin = BAT_2_STAT_1_OUTPUT_PIN;
-	stat2_out_pin = BAT_2_STAT_2_OUTPUT_PIN;
-	stat1_prt = BAT_2_STAT_1_PORT;
-	stat2_prt = BAT_2_STAT_2_PORT;
-	stat1_pin = BAT_2_STAT_1_PIN;
-	stat2_pin = BAT_2_STAT_2_PIN;
+    else if(id == BATTERY_2) {
+        stat1_in_pin = BAT_2_STAT_1_INPUT_PIN;
+        stat2_in_pin = BAT_2_STAT_2_INPUT_PIN;
+        stat1_out_pin = BAT_2_STAT_1_OUTPUT_PIN;
+        stat2_out_pin = BAT_2_STAT_2_OUTPUT_PIN;
+        stat1_prt = BAT_2_STAT_1_PORT;
+        stat2_prt = BAT_2_STAT_2_PORT;
+        stat1_pin = BAT_2_STAT_1_PIN;
+        stat2_pin = BAT_2_STAT_2_PIN;
     }
 
     //This should never happen...
@@ -129,50 +129,50 @@ unsigned char rfcx_battery_status(unsigned char id) {
     stat2_prt &= ~_BV(stat2_out_pin);
 
     // input pin goes from low to high: High Z mode
-    if((!stat1_first) && stat1_second){
-	stat1_mode = HIGHZ;
+    if((!stat1_first) && stat1_second) {
+        stat1_mode = HIGHZ;
     }
     // Remained high both times
-    else if(stat1_first && stat1_second){
-	stat1_mode = HIGH;
+    else if(stat1_first && stat1_second) {
+        stat1_mode = HIGH;
     }
     // Remained low both times
-    else if(!(stat1_first && stat1_second)){
-	stat1_mode = LOW;
+    else if(!(stat1_first && stat1_second)) {
+        stat1_mode = LOW;
     }
     // should never reach this
-    else{
-	return BAT_STATUS_ERROR;
+    else {
+        return BAT_STATUS_ERROR;
     }
     // input pin goes from low to high: High Z mode
-    if((!stat2_first) && stat2_second){
-	stat2_mode = HIGHZ;
+    if((!stat2_first) && stat2_second) {
+        stat2_mode = HIGHZ;
     }
     // Remained high both times
-    else if(stat2_first && stat2_second){
-	stat2_mode = HIGH;
+    else if(stat2_first && stat2_second) {
+        stat2_mode = HIGH;
     }
     // Remained low both times
-    else if(!(stat2_first && stat2_second)){
-	stat2_mode = LOW;
+    else if(!(stat2_first && stat2_second)) {
+        stat2_mode = LOW;
     }
     // should never reach this
-    else{
-	return BAT_STATUS_ERROR;
+    else {
+        return BAT_STATUS_ERROR;
     }
 
     // Determine charge state
-    if((stat1_mode == HIGHZ) && (stat2_mode == HIGHZ)){
-	return SHUTDOWN_MODE;
+    if((stat1_mode == HIGHZ) && (stat2_mode == HIGHZ)) {
+        return SHUTDOWN_MODE;
     }
-    else if((stat1_mode == LOW) && (stat2_mode == HIGHZ )){
-	return CHARGING;
+    else if((stat1_mode == LOW) && (stat2_mode == HIGHZ )) {
+        return CHARGING;
     }
-    else if((stat1_mode == HIGHZ) && (stat2_mode == LOW)){
-	return CHARGE_COMPLETE;
+    else if((stat1_mode == HIGHZ) && (stat2_mode == LOW)) {
+        return CHARGE_COMPLETE;
     }
-    else if((stat1_mode == LOW) && (stat2_mode == LOW)){
-	return FAULT;
+    else if((stat1_mode == LOW) && (stat2_mode == LOW)) {
+        return FAULT;
     }
 
     //Shouldn't ever get here
@@ -180,24 +180,25 @@ unsigned char rfcx_battery_status(unsigned char id) {
 }
 
 void rfcx_battery_status_string(char * str, unsigned char status) {
-	switch(status) {
-	case CHARGING:
-	    sprintf(str, "Charging");
-	    break;
-	case CHARGE_COMPLETE:
-	    sprintf(str, "Charge Complete");
-	    break;
-	case FAULT:
-	    sprintf(str, "Sleep Mode");
-	    break;
-	    //@TODO How to identify between Sleep Mode and Temp Fault?
-	    // case TEMPERATURE_FAULT:
-	    // 	sprintf(str, "Temperature Fault");
-	    // 	break;
-	case BAT_STATUS_ERROR:
-	    sprintf(str, "ERROR");
-	default:
-	    sprintf(str, "UNKNOWN");
-	    break;
-	}
+    switch(status) {
+        case CHARGING:
+            sprintf(str, "Charging");
+            break;
+        case CHARGE_COMPLETE:
+            sprintf(str, "Charge Complete");
+            break;
+        case FAULT:
+            sprintf(str, "Sleep Mode");
+            break;
+        //@TODO How to identify between Sleep Mode and Temp Fault?
+        // case TEMPERATURE_FAULT:
+        // 	sprintf(str, "Temperature Fault");
+        // 	break;
+        case BAT_STATUS_ERROR:
+            sprintf(str, "ERROR");
+            break;
+        default:
+            sprintf(str, "UNKNOWN");
+            break;
+    }
 }
